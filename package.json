@@ -1,0 +1,15 @@
+{
+  "name": "sohnipret-mern-replica",
+  "version": "1.0.0",
+  "description": "MERN Stack replication of SohniPret fashion brand website",
+  "scripts": {
+    "setup": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "backend": "npm start --prefix backend",
+    "frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "build": "npm run build --prefix frontend"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
