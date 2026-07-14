@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import argon2 from 'argon2';
 import { z } from 'zod';
 import { initRedis, checkRateLimits, handleFailedLogin, handleSuccessfulLogin, requiresCaptcha, verifyCaptcha } from './rateLimiter.js';
 
@@ -113,7 +114,8 @@ const Bundle = mongoose.models.Bundle || mongoose.model('Bundle', bundleSchema);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'nushmeera_clothes_secret_key_2026';
 
-const defaultHashedPassword = '$2b$10$c4DU94McGRfBlG/Xzo2Ij.u3uhBPhZzbEIYewdXAg5LvW/rZR.S6S'; // nu$hmeer@Cl0th1ng
+const argon2Options = { type: argon2.argon2id, memoryCost: 2 ** 16, timeCost: 5, parallelism: 1 };
+const defaultHashedPassword = await argon2.hash('nu$hmeer@Cl0th1ng', argon2Options);
 const initialAdmins = [
   {
     _id: "admin_default",
@@ -639,7 +641,33 @@ app.post('/api/admin/login', checkRateLimits, async (req, res) => {
       return res.status(401).json({ error: 'Invalid request parameters' }); // generic msg
     }
 
-    const isMatch = bcrypt.compareSync(password, adminUser.password);
+    let isMatch = false;
+    if (adminUser.password.startsWith('$2')) {
+      // Legacy bcrypt hash
+      isMatch = bcrypt.compareSync(password, adminUser.password);
+      if (isMatch) {
+        // Transparently upgrade to argon2
+        adminUser.password = await argon2.hash(password, argon2Options);
+        if (isUsingMongoDB) {
+          await Admin.updateOne({ username }, { password: adminUser.password });
+        } else {
+          const db = readLocalDB();
+          const target = db.admins.find(a => a.username === username);
+          if (target) {
+            target.password = adminUser.password;
+            writeLocalDB(db);
+          }
+        }
+      }
+    } else {
+      // Argon2 hash
+      try {
+        isMatch = await argon2.verify(adminUser.password, password);
+      } catch (err) {
+        isMatch = false;
+      }
+    }
+
     if (!isMatch) {
       await handleFailedLogin(username);
       return res.status(401).json({ error: 'Invalid request parameters' }); // generic msg
