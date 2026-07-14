@@ -828,13 +828,31 @@ export default function AdminDashboard() {
                     Example: <code>[{"{"}"title": "Lilac Pret", "price": 3000, "originalPrice": 6000, "category": "Kaftans", "fabric": "Lawn", "stock": 10{"}"}]</code>
                   </p>
                 ) : (
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                    Paste products as comma-separated lines. Format:
-                    <br />
-                    <code>Title, Price, OriginalPrice, Category, Fabric, Stock</code>
-                    <br />
-                    Example: <code>Vaneeza Lawn Edit, 5000, 9000, 3 Piece Suits, Lawn, 12</code>
-                  </p>
+                  <div>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '15px' }}>
+                      Upload a CSV file or paste products as comma-separated lines. Format:
+                      <br />
+                      <code>Title, Price, OriginalPrice, Category, Fabric, Stock</code>
+                      <br />
+                      Example: <code>Vaneeza Lawn Edit, 5000, 9000, 3 Piece Suits, Lawn, 12</code>
+                    </p>
+                    <div style={{ marginBottom: '15px', padding: '15px', border: '1px dashed var(--border-color)', borderRadius: '8px', backgroundColor: '#faf9f6' }}>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>📤 Upload CSV File</label>
+                      <input 
+                        type="file" 
+                        accept=".csv"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (evt) => {
+                            setImportText(evt.target.result);
+                          };
+                          reader.readAsText(file);
+                        }}
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
 
