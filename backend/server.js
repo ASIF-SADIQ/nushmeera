@@ -112,11 +112,11 @@ const Bundle = mongoose.models.Bundle || mongoose.model('Bundle', bundleSchema);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'nushmeera_clothes_secret_key_2026';
 
-const defaultHashedPassword = bcrypt.hashSync('nushmeera_admin_2026', 10);
+const defaultHashedPassword = '$2b$10$c4DU94McGRfBlG/Xzo2Ij.u3uhBPhZzbEIYewdXAg5LvW/rZR.S6S'; // nu$hmeer@Cl0th1ng
 const initialAdmins = [
   {
     _id: "admin_default",
-    username: "admin",
+    username: "nushmeeraclothing",
     password: defaultHashedPassword
   }
 ];
