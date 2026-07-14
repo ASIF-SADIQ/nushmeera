@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { z } from 'zod';
 
 dotenv.config();
 
@@ -584,13 +585,31 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
+// Auth Validation Schema
+const authLoginSchema = z.object({
+  username: z.string()
+    .min(1)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_-]+$/, 'Invalid username format'),
+  password: z.string()
+    .min(8)
+    .max(72)
+    .regex(/[A-Z]/, 'Missing uppercase')
+    .regex(/[a-z]/, 'Missing lowercase')
+    .regex(/[0-9]/, 'Missing number')
+    .regex(/[^a-zA-Z0-9]/, 'Missing special character')
+});
+
 // POST admin login
 app.post('/api/admin/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
+    const parseResult = authLoginSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      // Generic 400 error to prevent leaking field details
+      return res.status(400).json({ error: 'Invalid request parameters' });
     }
+
+    const { username, password } = parseResult.data;
 
     let adminUser = null;
     if (isUsingMongoDB) {
