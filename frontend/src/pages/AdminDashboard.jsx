@@ -178,6 +178,7 @@ export default function AdminDashboard() {
         const lines = importText.split('\n').filter(l => l.trim().length > 0);
         list = lines.map(line => {
           const parts = line.split(',').map(s => s.trim());
+          const imageUrl = parts[6] && parts[6].length > 0 ? parts[6] : '/images/placeholder.png';
           return {
             title: parts[0] || 'Imported Design',
             price: parseFloat(parts[1]) || 2999,
@@ -185,7 +186,7 @@ export default function AdminDashboard() {
             category: parts[3] || 'Shop All',
             fabric: parts[4] || 'Lawn',
             stock: parseInt(parts[5]) || 10,
-            images: ['/images/lilac_orchid.png'],
+            images: [imageUrl],
             sizes: ['Small', 'Medium', 'Large'],
             details: ['Premium wear', 'Imported fabric']
           };
@@ -832,9 +833,9 @@ export default function AdminDashboard() {
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '15px' }}>
                       Upload a CSV file or paste products as comma-separated lines. Format:
                       <br />
-                      <code>Title, Price, OriginalPrice, Category, Fabric, Stock</code>
+                      <code>Title, Price, OriginalPrice, Category, Fabric, Stock, ImageURL</code>
                       <br />
-                      Example: <code>Vaneeza Lawn Edit, 5000, 9000, 3 Piece Suits, Lawn, 12</code>
+                      Example: <code>Vaneeza Lawn Edit, 5000, 9000, 3 Piece Suits, Lawn, 12, /images/vaneeza.png</code>
                     </p>
                     <div style={{ marginBottom: '15px', padding: '15px', border: '1px dashed var(--border-color)', borderRadius: '8px', backgroundColor: '#faf9f6' }}>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>📤 Upload CSV File</label>
