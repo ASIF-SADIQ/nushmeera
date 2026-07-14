@@ -648,26 +648,27 @@ app.post('/api/admin/login', checkRateLimits, async (req, res) => {
       if (adminUser.password.startsWith('$2')) {
         // Legacy bcrypt hash
         isMatch = bcrypt.compareSync(password, adminUser.password);
-      if (isMatch) {
-        // Transparently upgrade to argon2
-        adminUser.password = await argon2.hash(password, argon2Options);
-        if (isUsingMongoDB) {
-          await Admin.updateOne({ username }, { password: adminUser.password });
-        } else {
-          const db = readLocalDB();
-          const target = db.admins.find(a => a.username === username);
-          if (target) {
-            target.password = adminUser.password;
-            writeLocalDB(db);
+        if (isMatch) {
+          // Transparently upgrade to argon2
+          adminUser.password = await argon2.hash(password, argon2Options);
+          if (isUsingMongoDB) {
+            await Admin.updateOne({ username }, { password: adminUser.password });
+          } else {
+            const db = readLocalDB();
+            const target = db.admins.find(a => a.username === username);
+            if (target) {
+              target.password = adminUser.password;
+              writeLocalDB(db);
+            }
           }
         }
-      }
-    } else {
-      // Argon2 hash
-      try {
-        isMatch = await argon2.verify(adminUser.password, password);
-      } catch (err) {
-        isMatch = false;
+      } else {
+        // Argon2 hash
+        try {
+          isMatch = await argon2.verify(adminUser.password, password);
+        } catch (err) {
+          isMatch = false;
+        }
       }
     }
 
