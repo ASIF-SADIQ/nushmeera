@@ -8,9 +8,15 @@ const memoryStore = new Map();
 export const initRedis = async () => {
   try {
     redisClient = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379'
+      url: process.env.REDIS_URL || 'redis://localhost:6379',
+      socket: {
+        reconnectStrategy: (retries) => {
+          if (retries > 2) return new Error('Max retries reached');
+          return Math.min(retries * 50, 500);
+        }
+      }
     });
-    redisClient.on('error', (err) => console.log('Redis error:', err));
+    redisClient.on('error', (err) => console.log('Redis error:', err.message));
     await redisClient.connect();
     console.log('Redis connected for rate limiting');
   } catch (err) {
