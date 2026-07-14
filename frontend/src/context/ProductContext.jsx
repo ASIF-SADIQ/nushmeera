@@ -90,7 +90,13 @@ export const ProductProvider = ({ children }) => {
       } else {
         setActivePage('home');
       }
-      window.scrollTo(0, 0);
+      
+      // Use instant scroll behavior to override CSS smooth scrolling on page changes
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant'
+      });
     };
 
     window.addEventListener('hashchange', handleHashChange);
