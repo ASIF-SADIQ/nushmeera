@@ -10,6 +10,7 @@ import bcrypt from 'bcryptjs';
 import argon2 from 'argon2';
 import { z } from 'zod';
 import { initRedis, checkRateLimits, handleFailedLogin, handleSuccessfulLogin, requiresCaptcha, verifyCaptcha } from './rateLimiter.js';
+import { sendOrderEmails } from './mailer.js';
 
 dotenv.config();
 
@@ -577,6 +578,17 @@ app.post('/api/orders', async (req, res) => {
       db.orders.push(newOrder);
       writeLocalDB(db);
     }
+
+    // Attempt to send order notification emails in the background
+    // We pass the order object regardless of whether it came from Mongo or JSON
+    // Construct a generic order object to pass to the mailer if needed
+    const emailOrderData = {
+      orderId,
+      cartItems,
+      customerDetails,
+      totalAmount
+    };
+    sendOrderEmails(emailOrderData).catch(err => console.error("Mailer background error:", err));
 
     res.status(201).json({
       success: true,
