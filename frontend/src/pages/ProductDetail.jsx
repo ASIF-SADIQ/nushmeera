@@ -172,6 +172,43 @@ export default function ProductDetail() {
             </a>
           </div>
 
+          {/* Trust Badges Box */}
+          <div className="trust-badges-box">
+            <div className="trust-badge-row">
+              <span className="trust-badge-icon">🚚</span>
+              <div className="trust-badge-content">
+                <div className="trust-badge-title">Free Delivery on Orders Over Rs. 7,000</div>
+                <div className="trust-badge-desc">Rs. 200 delivery charge applies on orders below Rs. 7,000</div>
+              </div>
+              <div className="trust-badge-action">FREE</div>
+            </div>
+            <div className="trust-badge-row">
+              <span className="trust-badge-icon">💳</span>
+              <div className="trust-badge-content">
+                <div className="trust-badge-title">Cash on Delivery Available</div>
+                <div className="trust-badge-desc">Pay when your parcel arrives — no advance needed</div>
+              </div>
+              <div className="trust-badge-action" style={{ backgroundColor: '#f5f5f5', color: '#666' }}>COD</div>
+            </div>
+            <div className="trust-badge-row">
+              <span className="trust-badge-icon">🔄</span>
+              <div className="trust-badge-content">
+                <div className="trust-badge-title">Easy Exchange within 7 Days</div>
+                <div className="trust-badge-desc">Wrong size? WhatsApp us with your order number</div>
+              </div>
+            </div>
+            <div className="trust-badge-row">
+              <span className="trust-badge-icon">💬</span>
+              <div className="trust-badge-content">
+                <div className="trust-badge-title">Need help with size or details?</div>
+                <div className="trust-badge-desc">Our team responds in minutes</div>
+              </div>
+              <a href="https://wa.me/923086195677" target="_blank" rel="noopener noreferrer" className="trust-badge-btn">
+                Chat Now
+              </a>
+            </div>
+          </div>
+
           {/* Product Details (Static List) */}
           <div className="product-details-list">
             <h4>Details</h4>
