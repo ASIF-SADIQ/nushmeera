@@ -63,7 +63,7 @@ export default function Header() {
           </button>
 
           <div className="header-helpline">
-            <span>📞 Support: +92 340 1040886</span>
+            <span>📞 Support: +92 308 6195677</span>
           </div>
 
           <div className="logo-container" style={{ cursor: 'pointer' }} onClick={() => navigateTo('home')}>

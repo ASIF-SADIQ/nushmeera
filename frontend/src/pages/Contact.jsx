@@ -66,8 +66,8 @@ export default function Contact() {
         <div className="contact-info-card">
           <div className="contact-info-block">
             <h3>Customer Support</h3>
-            <p className="footer-contact-item">📧 support@nushmeera.com</p>
-            <p className="footer-contact-item">📞 +92 340 1040886</p>
+            <p className="footer-contact-item">📧 nushmeera4@gmail.com</p>
+            <p className="footer-contact-item">📞 +92 308 6195677</p>
           </div>
           
           <div className="contact-info-block">

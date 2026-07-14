@@ -13,7 +13,7 @@ export default function Footer() {
   return (
     <>
       {/* Floating Whatsapp button */}
-      <a href="https://wa.me/923401040886" target="_blank" rel="noopener noreferrer" className="whatsapp-widget" aria-label="Chat on WhatsApp">
+      <a href="https://wa.me/923086195677" target="_blank" rel="noopener noreferrer" className="whatsapp-widget" aria-label="Chat on WhatsApp">
         💬
       </a>
 
@@ -46,8 +46,8 @@ export default function Footer() {
             </div>
             <div>
               <h3 className="footer-col-title">Store Details</h3>
-              <p className="footer-contact-item">📧 support@nushmeera.com</p>
-              <p className="footer-contact-item">📞 +92 340 1040886</p>
+              <p className="footer-contact-item">📧 nushmeera4@gmail.com</p>
+              <p className="footer-contact-item">📞 +92 308 6195677</p>
               <p className="footer-contact-item">📍 LDA Avenue, Lahore, Pakistan</p>
             </div>
           </div>

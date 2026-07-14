@@ -159,43 +159,54 @@ export default function ProductDetail() {
           <div className="buy-actions">
             <button className="btn-add-cart" onClick={handleAddToCart}>Add to Cart</button>
             <button className="btn-buy-now" onClick={handleBuyNow}>Buy It Now</button>
+            <a 
+              href={`https://api.whatsapp.com/send?phone=923086195677&text=Hi,%0AI want to order this product: ${selectedProduct.title}%0Ahttps://nushmeera.store/#/product/${selectedProduct._id}%0APrice: Rs.${selectedProduct.price}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn-whatsapp"
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" style={{ width: '22px', marginRight: '10px' }} />
+              ORDER ON WHATSAPP
+            </a>
           </div>
 
-          {/* Details accordions */}
-          <div className="detail-accordions">
-            <div className={`accordion-item ${activeAccordion === 0 ? 'active' : ''}`}>
-              <div 
-                className="accordion-title" 
-                onClick={() => setActiveAccordion(activeAccordion === 0 ? -1 : 0)}
-                style={{ cursor: 'pointer' }}
-              >
-                <span>Details</span>
-                <span>{activeAccordion === 0 ? '−' : '+'}</span>
-              </div>
-              <div className="accordion-content">
-                <ul style={{ paddingLeft: '20px' }}>
-                  {selectedProduct.details.map((detail, idx) => (
-                    <li key={idx} style={{ marginBottom: '5px' }}>{detail}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+          {/* Product Details (Static List) */}
+          <div className="product-details-list">
+            <h4>Details</h4>
+            <ul>
+              {selectedProduct.details.map((detail, idx) => (
+                <li key={idx}>{detail}</li>
+              ))}
+            </ul>
+            <p><strong>Disclaimer:</strong> Actual color may look slightly different from photos due to lighting and screen settings.</p>
+          </div>
 
-            <div className={`accordion-item ${activeAccordion === 1 ? 'active' : ''}`}>
-              <div 
-                className="accordion-title" 
-                onClick={() => setActiveAccordion(activeAccordion === 1 ? -1 : 1)}
-                style={{ cursor: 'pointer' }}
-              >
-                <span>Shipping & Exchanges</span>
-                <span>{activeAccordion === 1 ? '−' : '+'}</span>
+          {/* FAQ accordions */}
+          <div className="detail-accordions" style={{ marginTop: '30px' }}>
+            {[
+              { icon: '📦', title: "Kya Milay Ga? (What's Included)", content: "Your order includes a complete stitched outfit — ready to wear. Check the product details for exact pieces (2Pc or 3Pc). No additional stitching required." },
+              { icon: '📏', title: "Size Kaise Choose Karein?", content: "We offer S, M, L, XL across all products. Har product ke saath size chart diya gaya hai — please apni chest, length aur shoulder measurements check karein order karne se pehle." },
+              { icon: '🚚', title: "Delivery Kitne Din Mein Hogi?", content: "Delivery usually takes 3-5 working days all over Pakistan." },
+              { icon: '💵', title: "Payment Ka Tareeqa?", content: "We offer Cash on Delivery (COD) nationwide." },
+              { icon: '🔄', title: "Exchange/Return Policy", content: "Hassle-free exchanges within 7 days of delivery. Agar size ka masla ho ya koi defect ho, hum exchange kar dete hain." },
+              { icon: '🎨', title: "Color Same Aayega?", content: "Actual color may look slightly different from photos due to lighting and screen settings, but we guarantee the same premium quality." },
+              { icon: '🧵', title: "Fabric Quality Kaisi Hai?", content: "We use premium quality fabrics engineered for durability and style." },
+              { icon: '❓', title: "Koi Aur Sawal?", content: "Agar aapka koi aur sawal hai, toh aap humein WhatsApp par message kar sakte hain: 03086195677" }
+            ].map((faq, index) => (
+              <div key={index} className={`accordion-item ${activeAccordion === index ? 'active' : ''}`}>
+                <div 
+                  className="accordion-title" 
+                  onClick={() => setActiveAccordion(activeAccordion === index ? -1 : index)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <span><span className="accordion-icon">{faq.icon}</span> {faq.title}</span>
+                  <span>{activeAccordion === index ? '−' : '+'}</span>
+                </div>
+                <div className="accordion-content">
+                  <p>{faq.content}</p>
+                </div>
               </div>
-              <div className="accordion-content">
-                <p>🚛 <strong>Cash on Delivery:</strong> Available nationwide across Pakistan.</p>
-                <p>📦 <strong>Delivery Time:</strong> 3-5 working days.</p>
-                <p>🔁 <strong>Exchanges:</strong> Hassle-free exchanges within 7 days of delivery.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
