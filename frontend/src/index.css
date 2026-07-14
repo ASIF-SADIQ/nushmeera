@@ -667,6 +667,9 @@ button {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  position: sticky;
+  top: 120px;
+  align-self: start;
 }
 
 .product-gallery-main {
@@ -1621,6 +1624,7 @@ footer {
   .product-gallery {
     max-width: 600px;
     margin: 0 auto;
+    position: static;
   }
 }
 
