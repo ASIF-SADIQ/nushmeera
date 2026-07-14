@@ -261,7 +261,7 @@ export default function ProductDetail() {
       {/* Recommended Products */}
       <section className="recommended-section" style={{ padding: '0 0 100px' }}>
         <h2 className="section-title" style={{ textAlign: 'left', marginBottom: '30px', fontSize: '2rem' }}>You May Also Like</h2>
-        <div className="product-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
+        <div className="products-grid">
           {products
             .filter(p => p._id !== selectedProduct._id)
             .sort(() => 0.5 - Math.random()) // Randomize
