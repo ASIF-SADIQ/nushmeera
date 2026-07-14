@@ -59,13 +59,23 @@ export const ProductProvider = ({ children }) => {
       const hash = window.location.hash;
       if (hash.startsWith('#/product/')) {
         const prodId = hash.replace('#/product/', '');
-        fetch(`/api/products/${prodId}`)
-          .then(res => res.json())
+        fetch(`/api/products/${prodId}?t=${Date.now()}`)
+          .then(res => {
+            if (!res.ok) throw new Error('Server returned ' + res.status);
+            return res.json();
+          })
           .then(data => {
             if (data._id) {
               setSelectedProduct(data);
               setActivePage('product');
+            } else {
+              addToast("⚠️ Product not found in database.");
+              setActivePage('home');
             }
+          })
+          .catch(err => {
+            console.error("Error fetching product details", err);
+            addToast("⚠️ Error connecting to server to load product details.");
           });
       } else if (hash === '#/shop') {
         setActivePage('shop');
@@ -92,7 +102,8 @@ export const ProductProvider = ({ children }) => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch(`/api/products?t=${Date.now()}`);
+      if (!res.ok) throw new Error('Server returned ' + res.status);
       const data = await res.json();
       setProducts(data);
     } catch (error) {
