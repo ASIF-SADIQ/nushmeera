@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { ProductContext } from '../context/ProductContext';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 export default function AdminDashboard() {
   const {
@@ -32,6 +33,8 @@ export default function AdminDashboard() {
   const [loginPass, setLoginPass] = useState('');
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+  const [requireCaptcha, setRequireCaptcha] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState('');
 
   const [activeTab, setActiveTab] = useState('overview'); // overview, orders, products, import, offers
   
@@ -260,9 +263,10 @@ export default function AdminDashboard() {
     }
 
     setLoginLoading(true);
-    const result = await loginAdmin(loginUser, loginPass);
+    const result = await loginAdmin(loginUser, loginPass, captchaToken);
     setLoginLoading(false);
     if (!result.success) {
+      if (result.requireCaptcha) setRequireCaptcha(true);
       setLoginError(result.error);
     } else {
       setLoginUser('');
@@ -312,6 +316,16 @@ export default function AdminDashboard() {
                 style={{ width: '100%', padding: '12px 15px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
               />
             </div>
+
+            {requireCaptcha && (
+              <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
+                <Turnstile
+                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} 
+                  onSuccess={(token) => setCaptchaToken(token)}
+                  onError={() => setLoginError('CAPTCHA verification failed')}
+                />
+              </div>
+            )}
 
             <button 
               type="submit" 

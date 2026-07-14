@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { initRedis, checkRateLimits, handleFailedLogin, handleSuccessfulLogin, requiresCaptcha, verifyCaptcha } from './rateLimiter.js';
 
 dotenv.config();
 
@@ -348,6 +349,7 @@ function writeLocalDB(data) {
 }
 
 // Try connecting to MongoDB
+await initRedis();
 mongoose.connect(MONGODB_URI)
   .then(async () => {
     console.log("Connected to MongoDB successfully!");
@@ -384,7 +386,6 @@ mongoose.connect(MONGODB_URI)
   .catch((err) => {
     console.warn("MongoDB connection failed. Falling back to local JSON database storage.", err.message);
     isUsingMongoDB = false;
-    // Load initial JSON data to ensure database is created
     readLocalDB();
   });
 
@@ -597,11 +598,12 @@ const authLoginSchema = z.object({
     .regex(/[A-Z]/, 'Missing uppercase')
     .regex(/[a-z]/, 'Missing lowercase')
     .regex(/[0-9]/, 'Missing number')
-    .regex(/[^a-zA-Z0-9]/, 'Missing special character')
+    .regex(/[^a-zA-Z0-9]/, 'Missing special character'),
+  captchaToken: z.string().optional()
 });
 
 // POST admin login
-app.post('/api/admin/login', async (req, res) => {
+app.post('/api/admin/login', checkRateLimits, async (req, res) => {
   try {
     const parseResult = authLoginSchema.safeParse(req.body);
     if (!parseResult.success) {
@@ -609,7 +611,20 @@ app.post('/api/admin/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid request parameters' });
     }
 
-    const { username, password } = parseResult.data;
+    const { username, password, captchaToken } = parseResult.data;
+
+    // Check if CAPTCHA is required due to previous failed attempts
+    const needCaptcha = await requiresCaptcha(username);
+    if (needCaptcha) {
+      if (!captchaToken) {
+        return res.status(403).json({ error: 'CAPTCHA required', requireCaptcha: true });
+      }
+      const isValidCaptcha = await verifyCaptcha(captchaToken);
+      if (!isValidCaptcha) {
+        await handleFailedLogin(username);
+        return res.status(400).json({ error: 'Invalid CAPTCHA' });
+      }
+    }
 
     let adminUser = null;
     if (isUsingMongoDB) {
@@ -620,13 +635,17 @@ app.post('/api/admin/login', async (req, res) => {
     }
 
     if (!adminUser) {
-      return res.status(401).json({ error: 'Invalid username or password' });
+      await handleFailedLogin(username);
+      return res.status(401).json({ error: 'Invalid request parameters' }); // generic msg
     }
 
     const isMatch = bcrypt.compareSync(password, adminUser.password);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid username or password' });
+      await handleFailedLogin(username);
+      return res.status(401).json({ error: 'Invalid request parameters' }); // generic msg
     }
+
+    await handleSuccessfulLogin(username);
 
     const token = jwt.sign(
       { id: adminUser._id || adminUser.username, username: adminUser.username },

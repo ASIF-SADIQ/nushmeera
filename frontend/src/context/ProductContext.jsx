@@ -152,12 +152,12 @@ export const ProductProvider = ({ children }) => {
     setAdminOrders([]);
   };
 
-  const loginAdmin = async (username, password) => {
+  const loginAdmin = async (username, password, captchaToken = undefined) => {
     try {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password, captchaToken })
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -168,7 +168,7 @@ export const ProductProvider = ({ children }) => {
         addToast("🔑 Logged in successfully!");
         return { success: true };
       } else {
-        return { success: false, error: data.error || 'Login failed' };
+        return { success: false, error: data.error || 'Login failed', requireCaptcha: data.requireCaptcha };
       }
     } catch (error) {
       console.error("Login error", error);
