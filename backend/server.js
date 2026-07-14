@@ -636,15 +636,18 @@ app.post('/api/admin/login', checkRateLimits, async (req, res) => {
       adminUser = (db.admins || []).find(a => a.username === username);
     }
 
-    if (!adminUser) {
-      await handleFailedLogin(username);
-      return res.status(401).json({ error: 'Invalid request parameters' }); // generic msg
-    }
-
     let isMatch = false;
-    if (adminUser.password.startsWith('$2')) {
-      // Legacy bcrypt hash
-      isMatch = bcrypt.compareSync(password, adminUser.password);
+    // Pre-calculated dummy hash to ensure timing consistency (prevents user enumeration)
+    const dummyHash = defaultHashedPassword;
+
+    if (!adminUser) {
+      try {
+        await argon2.verify(dummyHash, password);
+      } catch (e) {}
+    } else {
+      if (adminUser.password.startsWith('$2')) {
+        // Legacy bcrypt hash
+        isMatch = bcrypt.compareSync(password, adminUser.password);
       if (isMatch) {
         // Transparently upgrade to argon2
         adminUser.password = await argon2.hash(password, argon2Options);
@@ -668,9 +671,9 @@ app.post('/api/admin/login', checkRateLimits, async (req, res) => {
       }
     }
 
-    if (!isMatch) {
+    if (!adminUser || !isMatch) {
       await handleFailedLogin(username);
-      return res.status(401).json({ error: 'Invalid request parameters' }); // generic msg
+      return res.status(401).json({ error: 'Incorrect email or password.' }); 
     }
 
     await handleSuccessfulLogin(username);
