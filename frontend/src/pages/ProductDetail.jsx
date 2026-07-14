@@ -1,9 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { ProductContext } from '../context/ProductContext';
 import { CartContext } from '../context/CartContext';
+import ProductCard from '../components/ProductCard';
 
 export default function ProductDetail() {
   const {
+    products,
     selectedProduct,
     setShowSizingModal,
     setShowReviewModal,
@@ -184,14 +186,14 @@ export default function ProductDetail() {
           {/* FAQ accordions */}
           <div className="detail-accordions" style={{ marginTop: '30px' }}>
             {[
-              { icon: '📦', title: "Kya Milay Ga? (What's Included)", content: "Your order includes a complete stitched outfit — ready to wear. Check the product details for exact pieces (2Pc or 3Pc). No additional stitching required." },
-              { icon: '📏', title: "Size Kaise Choose Karein?", content: "We offer S, M, L, XL across all products. Har product ke saath size chart diya gaya hai — please apni chest, length aur shoulder measurements check karein order karne se pehle." },
+              { icon: '📦', title: "Kya Milay Ga? (What's Included)", content: "Your order includes a complete stitched outfit — ready to wear. Check the product title for exact pieces (2Pc or 3Pc). No additional stitching required." },
+              { icon: '📏', title: "Size Kaise Choose Karein?", content: "We offer S, M, L, XL across all products. Har product ke saath size chart diya gaya hai — please apni chest, length aur shoulder measurements check karein before placing order." },
               { icon: '🚚', title: "Delivery Kitne Din Mein Hogi?", content: "Delivery usually takes 3-5 working days all over Pakistan." },
               { icon: '💵', title: "Payment Ka Tareeqa?", content: "We offer Cash on Delivery (COD) nationwide." },
-              { icon: '🔄', title: "Exchange/Return Policy", content: "Hassle-free exchanges within 7 days of delivery. Agar size ka masla ho ya koi defect ho, hum exchange kar dete hain." },
-              { icon: '🎨', title: "Color Same Aayega?", content: "Actual color may look slightly different from photos due to lighting and screen settings, but we guarantee the same premium quality." },
-              { icon: '🧵', title: "Fabric Quality Kaisi Hai?", content: "We use premium quality fabrics engineered for durability and style." },
-              { icon: '❓', title: "Koi Aur Sawal?", content: "Agar aapka koi aur sawal hai, toh aap humein WhatsApp par message kar sakte hain: 03086195677" }
+              { icon: '🔄', title: "Exchange/Return Policy", content: "Size issue ya defective item? 7 din ke andar exchange available hai. Conditions:\n• Product unworn ho aur tags attached hon\n• Order number + photos WhatsApp karein: 03086195677\n• Hum exchange process guide kar dein ge\nNote: Sale items exchange ke liye eligible nahi ho sakti. Refunds sirf defective/incorrect items pe available hain." },
+              { icon: '🎨', title: "Color Same Aayega?", content: "Hum koshish karte hain ke photos bilkul accurate hon, lekin screen brightness aur lighting ki wajah se halka sa color difference ho sakta hai. Humare customer reviews aur videos mein jo color dikhta hai — woh closest representation hai." },
+              { icon: '🧵', title: "Fabric Quality Kaisi Hai?", content: "Nushmeera sirf premium fabrics use karta hai — Silk Finish Lawn, Cotton, Khaddar aur more. Har fabric soft, breathable aur all-day comfortable hai. 5000+ customers ne humari quality pe trust kiya hai." },
+              { icon: '❓', title: "Koi Aur Sawal?", content: "WhatsApp: 03086195677 (minutes mein reply)\nEmail: nushmeera4@gmail.com\nHum order se pehle aur baad mein — dono waqt help ke liye available hain 🤍" }
             ].map((faq, index) => (
               <div key={index} className={`accordion-item ${activeAccordion === index ? 'active' : ''}`}>
                 <div 
@@ -203,7 +205,7 @@ export default function ProductDetail() {
                   <span>{activeAccordion === index ? '−' : '+'}</span>
                 </div>
                 <div className="accordion-content">
-                  <p>{faq.content}</p>
+                  <p style={{ whiteSpace: 'pre-line' }}>{faq.content}</p>
                 </div>
               </div>
             ))}
@@ -253,6 +255,21 @@ export default function ProductDetail() {
               </div>
             ))
           )}
+        </div>
+      </section>
+
+      {/* Recommended Products */}
+      <section className="recommended-section" style={{ padding: '0 0 100px' }}>
+        <h2 className="section-title" style={{ textAlign: 'left', marginBottom: '30px', fontSize: '2rem' }}>You May Also Like</h2>
+        <div className="product-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
+          {products
+            .filter(p => p._id !== selectedProduct._id)
+            .sort(() => 0.5 - Math.random()) // Randomize
+            .slice(0, 4) // Pick 4
+            .map(p => (
+              <ProductCard key={p._id} product={p} />
+            ))
+          }
         </div>
       </section>
     </div>
