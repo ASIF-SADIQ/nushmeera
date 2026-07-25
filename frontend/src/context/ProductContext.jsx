@@ -368,6 +368,58 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
+  const bulkDeleteAdminProducts = async (productIds) => {
+    try {
+      const res = await fetch('/api/admin/products/bulk-delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({ productIds })
+      });
+      if (res.status === 401) {
+        handleUnauthorized();
+        return false;
+      }
+      if (res.ok) {
+        addToast("🗑️ Products deleted successfully!");
+        fetchProducts();
+      }
+      return res.ok;
+    } catch (error) {
+      console.error("Error bulk deleting products", error);
+      addToast("❌ Failed to delete products");
+      return false;
+    }
+  };
+
+  const bulkEditAdminProducts = async (productIds, updateFields) => {
+    try {
+      const res = await fetch('/api/admin/products/bulk-edit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({ productIds, updateFields })
+      });
+      if (res.status === 401) {
+        handleUnauthorized();
+        return false;
+      }
+      if (res.ok) {
+        addToast("✅ Products updated successfully!");
+        fetchProducts();
+      }
+      return res.ok;
+    } catch (error) {
+      console.error("Error bulk editing products", error);
+      addToast("❌ Failed to update products");
+      return false;
+    }
+  };
+
   const importAdminProducts = async (productsList) => {
     try {
       const res = await fetch('/api/admin/products/import', {
@@ -534,6 +586,8 @@ export const ProductProvider = ({ children }) => {
         createAdminProduct,
         updateAdminProduct,
         deleteAdminProduct,
+        bulkDeleteAdminProducts,
+        bulkEditAdminProducts,
         importAdminProducts,
         loginAdmin,
         logoutAdmin,

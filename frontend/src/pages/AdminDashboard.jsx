@@ -14,6 +14,8 @@ export default function AdminDashboard() {
     createAdminProduct,
     updateAdminProduct,
     deleteAdminProduct,
+    bulkDeleteAdminProducts,
+    bulkEditAdminProducts,
     importAdminProducts,
     loginAdmin,
     logoutAdmin,
@@ -64,6 +66,11 @@ export default function AdminDashboard() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
+
+  // Bulk Selection State
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
+  const [showBulkEditModal, setShowBulkEditModal] = useState(false);
+  const [bulkEditFields, setBulkEditFields] = useState({ category: '', fabric: '', stock: '', price: '' });
 
   // Form Fields
   const [prodTitle, setProdTitle] = useState('');
@@ -148,6 +155,50 @@ export default function AdminDashboard() {
 
     if (success) {
       setShowProductModal(false);
+    }
+  };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedProductIds(products.map(p => p._id));
+    } else {
+      setSelectedProductIds([]);
+    }
+  };
+
+  const handleSelectProduct = (e, id) => {
+    if (e.target.checked) {
+      setSelectedProductIds(prev => [...prev, id]);
+    } else {
+      setSelectedProductIds(prev => prev.filter(pid => pid !== id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedProductIds.length === 0) return;
+    if (confirm(`Are you sure you want to delete ${selectedProductIds.length} selected products?`)) {
+      const success = await bulkDeleteAdminProducts(selectedProductIds);
+      if (success) {
+        setSelectedProductIds([]);
+      }
+    }
+  };
+
+  const handleBulkEditSubmit = async (e) => {
+    e.preventDefault();
+    if (selectedProductIds.length === 0) return;
+    
+    const updates = {};
+    if (bulkEditFields.category.trim()) updates.category = bulkEditFields.category.trim();
+    if (bulkEditFields.fabric.trim()) updates.fabric = bulkEditFields.fabric.trim();
+    if (bulkEditFields.stock.trim()) updates.stock = parseInt(bulkEditFields.stock);
+    if (bulkEditFields.price.trim()) updates.price = parseFloat(bulkEditFields.price);
+    
+    const success = await bulkEditAdminProducts(selectedProductIds, updates);
+    if (success) {
+      setSelectedProductIds([]);
+      setShowBulkEditModal(false);
+      setBulkEditFields({ category: '', fabric: '', stock: '', price: '' });
     }
   };
 
@@ -708,26 +759,44 @@ export default function AdminDashboard() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
               <h1 style={{ fontSize: '2rem', color: 'var(--primary-color)', margin: 0 }}>Product Inventory</h1>
-              <button 
-                onClick={openCreateModal}
-                style={{
-                  backgroundColor: 'var(--primary-color)',
-                  color: 'white',
-                  padding: '12px 25px',
-                  borderRadius: '4px',
-                  fontWeight: '600',
-                  fontSize: '0.85rem',
-                  textTransform: 'uppercase'
-                }}
-              >
-                ➕ Create New Product
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {selectedProductIds.length > 0 && (
+                  <>
+                    <button 
+                      onClick={() => setShowBulkEditModal(true)}
+                      style={{ backgroundColor: 'var(--accent-color)', color: 'white', padding: '12px 20px', borderRadius: '4px', fontWeight: '600', fontSize: '0.85rem' }}
+                    >
+                      ✏️ Bulk Edit ({selectedProductIds.length})
+                    </button>
+                    <button 
+                      onClick={handleBulkDelete}
+                      style={{ backgroundColor: '#dc3545', color: 'white', padding: '12px 20px', borderRadius: '4px', fontWeight: '600', fontSize: '0.85rem' }}
+                    >
+                      🗑️ Bulk Delete
+                    </button>
+                  </>
+                )}
+                <button 
+                  onClick={openCreateModal}
+                  style={{ backgroundColor: 'var(--primary-color)', color: 'white', padding: '12px 25px', borderRadius: '4px', fontWeight: '600', fontSize: '0.85rem', textTransform: 'uppercase' }}
+                >
+                  ➕ Create New Product
+                </button>
+              </div>
             </div>
 
             <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-muted)' }}>
+                    <th style={{ padding: '12px' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={products.length > 0 && selectedProductIds.length === products.length}
+                        onChange={handleSelectAll}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </th>
                     <th style={{ padding: '12px' }}>Design Image</th>
                     <th>Product Title</th>
                     <th>Category</th>
@@ -740,7 +809,15 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {products.map(p => (
-                    <tr key={p._id} style={{ borderBottom: '1px solid #f1f1f1' }}>
+                    <tr key={p._id} style={{ borderBottom: '1px solid #f1f1f1', backgroundColor: selectedProductIds.includes(p._id) ? '#f9f9f9' : 'transparent' }}>
+                      <td style={{ padding: '10px 12px' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={selectedProductIds.includes(p._id)}
+                          onChange={(e) => handleSelectProduct(e, p._id)}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      </td>
                       <td style={{ padding: '10px 12px' }}>
                         <img 
                           src={p.images[0]} 
@@ -756,10 +833,7 @@ export default function AdminDashboard() {
                         Rs. {p.originalPrice.toLocaleString()}
                       </td>
                       <td>
-                        <span style={{
-                          fontWeight: 'bold',
-                          color: p.stock <= 5 ? '#d85c27' : 'var(--text-color)'
-                        }}>
+                        <span style={{ fontWeight: 'bold', color: p.stock <= 5 ? '#d85c27' : 'var(--text-color)' }}>
                           {p.stock} units
                         </span>
                         {p.stock <= 5 && <span style={{ fontSize: '0.7rem', display: 'block', color: '#d85c27' }}>⚠️ low stock</span>}
@@ -1095,6 +1169,70 @@ export default function AdminDashboard() {
       </main>
 
       {/* CRUD Product Dialog Modal */}
+      {/* Bulk Edit Modal */}
+      {showBulkEditModal && (
+        <div className="modal-overlay active" onClick={() => setShowBulkEditModal(false)}>
+          <div className="modal-content-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h2 style={{ margin: 0, color: 'var(--primary-color)' }}>Bulk Edit {selectedProductIds.length} Products</h2>
+              <button className="close-button" onClick={() => setShowBulkEditModal(false)}>✖</button>
+            </div>
+            <div style={{ padding: '20px' }}>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '20px', fontSize: '0.9rem' }}>
+                Leave a field blank to keep its current value for all selected products.
+              </p>
+              <form onSubmit={handleBulkEditSubmit} className="admin-form">
+                <div className="form-group">
+                  <label>New Category</label>
+                  <input 
+                    type="text" 
+                    value={bulkEditFields.category} 
+                    onChange={e => setBulkEditFields({...bulkEditFields, category: e.target.value})} 
+                    placeholder="e.g. 2 Piece Sets"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>New Fabric</label>
+                  <input 
+                    type="text" 
+                    value={bulkEditFields.fabric} 
+                    onChange={e => setBulkEditFields({...bulkEditFields, fabric: e.target.value})} 
+                    placeholder="e.g. Chiffon"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>New Stock</label>
+                  <input 
+                    type="number" 
+                    value={bulkEditFields.stock} 
+                    onChange={e => setBulkEditFields({...bulkEditFields, stock: e.target.value})} 
+                    placeholder="Leave blank to ignore"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>New Selling Price</label>
+                  <input 
+                    type="number" 
+                    value={bulkEditFields.price} 
+                    onChange={e => setBulkEditFields({...bulkEditFields, price: e.target.value})} 
+                    placeholder="Leave blank to ignore"
+                  />
+                </div>
+                
+                <div style={{ display: 'flex', gap: '10px', marginTop: '30px' }}>
+                  <button type="submit" className="save-btn" style={{ flex: 1, padding: '12px', fontSize: '1rem' }}>
+                    Apply to {selectedProductIds.length} Products
+                  </button>
+                  <button type="button" onClick={() => setShowBulkEditModal(false)} className="cancel-btn" style={{ flex: 1, padding: '12px', fontSize: '1rem' }}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showProductModal && (
         <div className="modal-overlay active" onClick={() => setShowProductModal(false)}>
           <div className="modal-content-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '650px' }}>

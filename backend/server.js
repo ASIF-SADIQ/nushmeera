@@ -910,6 +910,62 @@ app.delete('/api/admin/products/:id', adminAuth, async (req, res) => {
   }
 });
 
+// POST bulk delete products
+app.post('/api/admin/products/bulk-delete', adminAuth, async (req, res) => {
+  try {
+    const { productIds } = req.body;
+    if (!productIds || !Array.isArray(productIds)) return res.status(400).json({ error: 'Invalid productIds array' });
+    
+    if (isUsingMongoDB) {
+      await Product.deleteMany({ _id: { $in: productIds } });
+      return res.json({ success: true, message: `${productIds.length} products deleted successfully` });
+    } else {
+      const db = readLocalDB();
+      db.products = db.products.filter(p => !productIds.includes(p._id));
+      writeLocalDB(db);
+      return res.json({ success: true, message: `${productIds.length} products deleted successfully` });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST bulk edit products
+app.post('/api/admin/products/bulk-edit', adminAuth, async (req, res) => {
+  try {
+    const { productIds, updateFields } = req.body;
+    if (!productIds || !Array.isArray(productIds)) return res.status(400).json({ error: 'Invalid productIds array' });
+    
+    // Filter out undefined/empty fields from updateFields
+    const validUpdates = {};
+    Object.keys(updateFields).forEach(key => {
+      if (updateFields[key] !== '' && updateFields[key] !== undefined && updateFields[key] !== null) {
+        validUpdates[key] = updateFields[key];
+      }
+    });
+
+    if (Object.keys(validUpdates).length === 0) {
+      return res.json({ success: true, message: 'No valid fields to update' });
+    }
+
+    if (isUsingMongoDB) {
+      await Product.updateMany({ _id: { $in: productIds } }, { $set: validUpdates });
+      return res.json({ success: true, message: `${productIds.length} products updated successfully` });
+    } else {
+      const db = readLocalDB();
+      db.products.forEach(p => {
+        if (productIds.includes(p._id)) {
+          Object.assign(p, validUpdates);
+        }
+      });
+      writeLocalDB(db);
+      return res.json({ success: true, message: `${productIds.length} products updated successfully` });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST bulk import products
 app.post('/api/admin/products/import', adminAuth, async (req, res) => {
   try {
