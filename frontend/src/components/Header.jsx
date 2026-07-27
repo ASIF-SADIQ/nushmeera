@@ -67,8 +67,9 @@ export default function Header() {
           </div>
 
           <div className="logo-container" style={{ cursor: 'pointer' }} onClick={() => navigateTo('home')}>
-            <div className="logo-image-wrap">
-              <img src="/images/logo.png" alt="Nushmeera Clothes Logo" style={{ height: '60px', objectFit: 'contain' }} />
+            <div className="logo-text-wrap">
+              <span className="logo-text">NUSHMEERA</span>
+              <span className="logo-subtext">CLOTHES</span>
             </div>
           </div>
 

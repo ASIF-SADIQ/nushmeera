@@ -155,27 +155,34 @@ button {
 
 .logo-text-wrap {
   text-align: center;
+  user-select: none;
 }
 
 .logo-text {
-  font-family: var(--font-heading);
-  font-size: 2.8rem;
-  color: var(--accent-color);
+  font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+  font-size: 2.2rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  font-style: italic;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #FFF0B2 0%, #D4AF37 40%, #AA7C11 80%, #F3E5AB 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: block;
+  line-height: 1.1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .logo-subtext {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.35em;
-  color: #fff;
+  letter-spacing: 0.45em;
+  color: #D4AF37;
   display: block;
   text-align: center;
-  margin-top: -5px;
+  margin-top: 2px;
+  opacity: 0.9;
 }
 
 .header-icons {

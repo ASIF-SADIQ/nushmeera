@@ -26,7 +26,8 @@ const PORT = process.env.PORT || 5000;
 // Database Configuration
 // Force the database name to always be 'nushmeera'
 // This ensures the correct DB is used regardless of env variable format
-const rawMongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nushmeera';
+const DEFAULT_MONGODB_URI = 'mongodb+srv://mailmeatjohnsmith1_db_user:0Lt01ywMR7WsAIHT@cluster0.2ivtkbn.mongodb.net/nushmeera?appName=Cluster0';
+const rawMongoURI = process.env.MONGODB_URI || DEFAULT_MONGODB_URI;
 const MONGODB_URI = (() => {
   if (!rawMongoURI || rawMongoURI.includes('localhost')) return rawMongoURI;
   // Use string parsing instead of URL class (mongodb+srv:// is not a standard URL scheme)
