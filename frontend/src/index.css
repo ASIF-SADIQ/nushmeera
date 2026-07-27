@@ -266,45 +266,70 @@ button {
 }
 
 /* Hero Section */
-.hero {
-  height: calc(100vh - 155px);
-  min-height: 500px;
+/* Interactive Hero Slider Section */
+.hero-slider-section {
+  height: 75vh;
+  min-height: 520px;
   position: relative;
-  display: flex;
-  align-items: center;
+  overflow: hidden;
+  background-color: #0f3d33;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
   background-size: cover;
   background-position: center;
-  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1.2s ease-in-out, transform 8s ease-out;
+  transform: scale(1.08);
+  display: flex;
+  align-items: center;
+}
+
+.hero-slide.active {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(15, 61, 51, 0.4), transparent);
+  background: linear-gradient(to right, rgba(15, 61, 51, 0.75) 0%, rgba(15, 61, 51, 0.3) 60%, transparent 100%);
 }
 
 .hero-content {
   position: relative;
   z-index: 5;
-  max-width: 600px;
+  max-width: 650px;
   color: #fff;
-  padding: 40px;
-  animation: fadeInUp 1s ease-out;
+  padding: 40px 60px;
+  animation: fadeInUp 0.9s ease-out forwards;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 30px;
+  font-weight: 300;
+  line-height: 1.5;
 }
 
 .hero-tagline {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.3em;
   color: var(--accent-color);
   margin-bottom: 15px;
   font-weight: 600;
 }
 
 .hero-title {
-  font-size: 4.2rem;
+  font-size: 3.8rem;
   line-height: 1.1;
-  margin-bottom: 25px;
+  margin-bottom: 15px;
   font-family: var(--font-heading);
 }
 
@@ -312,29 +337,115 @@ button {
   display: inline-block;
   background-color: var(--accent-color);
   color: white;
-  padding: 15px 40px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  padding: 16px 42px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   border-radius: 4px;
   font-size: 0.85rem;
-  box-shadow: 0 4px 15px rgba(198, 167, 92, 0.3);
+  box-shadow: 0 4px 20px rgba(198, 167, 92, 0.4);
+  transition: var(--transition-smooth);
 }
 
 .hero-btn:hover {
-  background-color: var(--accent-dark);
-  transform: translateY(-2px);
+  background-color: #b38f38;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(198, 167, 92, 0.6);
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Slide Navigation Arrows */
+.hero-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.hero-arrow:hover {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.hero-arrow-left {
+  left: 30px;
+}
+
+.hero-arrow-right {
+  right: 30px;
+}
+
+/* Slide Indicator Dots */
+.hero-dots {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 12px;
+}
+
+.hero-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hero-dot.active {
+  background: var(--accent-color);
+  width: 32px;
+  border-radius: 20px;
+}
+
+/* Category Card Customizations */
+.category-card {
+  position: relative;
+  height: 420px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  transition: background-image 1.5s ease-in-out, transform 0.5s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+.category-card:hover {
+  transform: translateY(-6px);
+}
+
+.rotating-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.6);
+  color: #D4AF37;
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* Shipping Notice Header Banner */

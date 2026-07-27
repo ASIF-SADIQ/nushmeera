@@ -16,6 +16,90 @@ export default function Home() {
 
   const { addToCart } = useContext(CartContext);
 
+  // 1. Hero Slideshow State
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+  // Fallback high-res luxury fashion image URLs for Hero Slides
+  const defaultHeroImages = [
+    'https://cdn.shopify.com/s/files/1/0713/6552/5615/files/ChatGPTImageJul9_2026_01_11_23AM_7.png?v=1783717621',
+    'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80'
+  ];
+
+  // Extract all valid image URLs from loaded products
+  const productImages = products
+    .flatMap(p => p.images || [])
+    .filter(url => url && typeof url === 'string' && url.startsWith('http'));
+
+  const heroSlides = [
+    {
+      tagline: 'PREMIUM SUMMER COLLECTION 2026',
+      title: 'Summer Lawn Edit',
+      subtitle: 'Handcrafted luxury embroidered & printed lawn 3-piece suits.',
+      cta: 'Shop Collection',
+      category: '3 Piece Suits',
+      image: productImages[0] || defaultHeroImages[0]
+    },
+    {
+      tagline: 'EXCLUSIVE FESTIVE SELECTION',
+      title: 'Luxury Embroidered Edit',
+      subtitle: 'Exquisite chiffon & organza embroidery for formal elegance.',
+      cta: 'Explore 3-Piece',
+      category: '3 Piece Suits',
+      image: productImages[4] || defaultHeroImages[1]
+    },
+    {
+      tagline: 'EVERYDAY COMFORT & STYLE',
+      title: 'Chic 2-Piece & Co-Ords',
+      subtitle: 'Modern silhouettes designed for everyday elegance.',
+      cta: 'Browse 2-Piece',
+      category: '2 Piece Sets',
+      image: productImages[8] || defaultHeroImages[2]
+    },
+    {
+      tagline: 'AFFORDABLE LUXURY FASHION',
+      title: 'Dresses Under Rs. 2,999',
+      subtitle: 'High-end lawn & linen outfits at unbeatable value.',
+      cta: 'Shop Under 2999',
+      category: 'Dresses under 2999',
+      image: productImages[12] || defaultHeroImages[3]
+    }
+  ];
+
+  // Auto-play Hero Slideshow every 5 seconds
+  useEffect(() => {
+    const slideTimer = setInterval(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
+    return () => clearInterval(slideTimer);
+  }, [heroSlides.length]);
+
+  const nextSlide = () => {
+    setCurrentSlideIndex((prev) => (prev + 1) % heroSlides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlideIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+  };
+
+  // 2. Rotational Category Cards State (Rotates image every 15 seconds)
+  const [catImageIndexes, setCatImageIndexes] = useState([0, 1, 2]);
+
+  useEffect(() => {
+    if (productImages.length === 0) return;
+
+    const catTimer = setInterval(() => {
+      setCatImageIndexes(prev => [
+        (prev[0] + 3) % productImages.length,
+        (prev[1] + 5) % productImages.length,
+        (prev[2] + 7) % productImages.length
+      ]);
+    }, 15000); // Rotates every 15 seconds
+
+    return () => clearInterval(catTimer);
+  }, [productImages.length]);
+
   useEffect(() => {
     if (activePage === 'about') {
       const storySection = document.querySelector('.our-story-section');
@@ -25,7 +109,7 @@ export default function Home() {
     }
   }, [activePage]);
 
-  // Local state for the homepage featured product quick-add block
+  // Local state for featured product quick-add block
   const [featuredSize, setFeaturedSize] = useState('Medium');
   const [featuredQty, setFeaturedQty] = useState(1);
 
@@ -34,24 +118,56 @@ export default function Home() {
     navigateTo('shop');
   };
 
-  // Find Vaneeza Embroidered 3pc from product list
-  const featuredProduct = products.find(p => p._id === 'prod_vaneeza') || products[0];
+  const featuredProduct = products[0] || null;
+  const winners = products.slice(1, 4);
 
-  // Pick top 3 products for "Winners of the Month"
-  const winners = products.filter(p => p._id === 'prod_1' || p._id === 'prod_2' || p._id === 'prod_6');
+  // Images for the 3 Category Cards
+  const cat1Image = productImages[catImageIndexes[0]] || defaultHeroImages[1];
+  const cat2Image = productImages[catImageIndexes[1]] || defaultHeroImages[0];
+  const cat3Image = productImages[catImageIndexes[2]] || defaultHeroImages[2];
 
   return (
     <div className="home-page">
-      {/* 1. Hero Slider Banner */}
-      <section 
-        className="hero" 
-        style={{ backgroundImage: `url('/images/hero_banner.png')` }}
-      >
-        <div className="hero-overlay"></div>
-        <div className="hero-content">
-          <p className="hero-tagline">Premium Summer Collection</p>
-          <h1 className="hero-title">Summer Lawn Edit 2026</h1>
-          <button onClick={() => handleCategorySelect('')} className="hero-btn">Shop Collection</button>
+      {/* 1. Interactive Hero Slider Banner */}
+      <section className="hero-slider-section">
+        {heroSlides.map((slide, index) => (
+          <div
+            key={index}
+            className={`hero-slide ${index === currentSlideIndex ? 'active' : ''}`}
+            style={{ backgroundImage: `url('${slide.image}')` }}
+          >
+            <div className="hero-overlay"></div>
+            <div className="hero-content">
+              <p className="hero-tagline">{slide.tagline}</p>
+              <h1 className="hero-title">{slide.title}</h1>
+              <p className="hero-subtitle">{slide.subtitle}</p>
+              <button 
+                onClick={() => handleCategorySelect(slide.category)} 
+                className="hero-btn"
+              >
+                {slide.cta} →
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {/* Carousel Prev/Next Navigation Controls */}
+        <button className="hero-arrow hero-arrow-left" onClick={prevSlide} aria-label="Previous Slide">
+          ❮
+        </button>
+        <button className="hero-arrow hero-arrow-right" onClick={nextSlide} aria-label="Next Slide">
+          ❯
+        </button>
+
+        {/* Slide Indicator Dots */}
+        <div className="hero-dots">
+          {heroSlides.map((_, index) => (
+            <span
+              key={index}
+              className={`hero-dot ${index === currentSlideIndex ? 'active' : ''}`}
+              onClick={() => setCurrentSlideIndex(index)}
+            ></span>
+          ))}
         </div>
       </section>
 
@@ -89,46 +205,49 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Shop by Category Grid */}
+      {/* 3. Shop by Category Grid with Rotational Product Images */}
       <section className="categories-section container">
         <div className="section-title-wrap">
           <h2 className="section-title">Shop by Category</h2>
-          <p className="section-subtitle">Curated edits made for everyday luxury</p>
+          <p className="section-subtitle">Curated edits made for everyday luxury • Auto-rotating gallery</p>
         </div>
         <div className="categories-grid">
           <div 
             onClick={() => handleCategorySelect('New Arrival')}
             className="category-card"
-            style={{ backgroundImage: `url('/images/lilac_orchid.png')` }}
+            style={{ backgroundImage: `url('${cat1Image}')` }}
           >
             <div className="category-overlay"></div>
+            <span className="rotating-badge">🔄 Live Gallery</span>
             <div className="category-details">
               <h3>New Arrival</h3>
-              <span className="category-link">Explore Edit</span>
+              <span className="category-link">EXPLORE EDIT →</span>
             </div>
           </div>
 
           <div 
-            onClick={() => handleCategorySelect('Summer Lawn Edit')}
+            onClick={() => handleCategorySelect('3 Piece Suits')}
             className="category-card"
-            style={{ backgroundImage: `url('/images/vaneeza_pink.png')` }}
+            style={{ backgroundImage: `url('${cat2Image}')` }}
           >
             <div className="category-overlay"></div>
+            <span className="rotating-badge">🔄 Live Gallery</span>
             <div className="category-details">
               <h3>Summer Lawn Edit</h3>
-              <span className="category-link">Explore Edit</span>
+              <span className="category-link">EXPLORE EDIT →</span>
             </div>
           </div>
 
           <div 
             onClick={() => handleCategorySelect('Dresses under 2999')}
             className="category-card"
-            style={{ backgroundImage: `url('/images/midnight_dusk.png')` }}
+            style={{ backgroundImage: `url('${cat3Image}')` }}
           >
             <div className="category-overlay"></div>
+            <span className="rotating-badge">🔄 Live Gallery</span>
             <div className="category-details">
-              <h3>Dresses under 2999</h3>
-              <span className="category-link">Explore Edit</span>
+              <h3>Dresses Under 2999</h3>
+              <span className="category-link">EXPLORE EDIT →</span>
             </div>
           </div>
         </div>
@@ -158,7 +277,10 @@ export default function Home() {
       {/* 5. Narrative "Our Story" Brand Segment */}
       <section className="our-story-section">
         <div className="container story-content-wrap">
-          <div className="story-image" style={{ backgroundImage: `url('/images/midnight_dusk.png')` }}></div>
+          <div 
+            className="story-image" 
+            style={{ backgroundImage: `url('${productImages[15] || defaultHeroImages[3]}')` }}
+          ></div>
           <div className="story-text-panel">
             <span className="story-tagline">NUSHMEERA CLOTHES</span>
             <h2>Our Story & Craft</h2>
@@ -166,7 +288,7 @@ export default function Home() {
               Born from a love for delicate embroideries and breathable Pakistani lawns, Nushmeera Clothes blends classic aesthetics with contemporary comfort. We source the finest long-staple cotton yarns and print them with non-toxic, skin-friendly colors.
             </p>
             <p>
-              Each design tells a story of craftsmanship. Our weavers, embroiderers, and tailors align to bring you outfits that make you stand out, whether in a casual meeting or a formal evening gather.
+              Each design tells a story of craftsmanship. Our weavers, embroiderers, and tailors align to bring you outfits that make you stand out, whether in a casual meeting or a formal evening gathering.
             </p>
             <button onClick={() => navigateTo('contact')} className="story-btn">Read Our Manifesto</button>
           </div>
@@ -183,37 +305,41 @@ export default function Home() {
 
           <div className="featured-quickadd-card">
             <div className="quickadd-image-panel">
-              <img src={featuredProduct.images[0]} alt={featuredProduct.title} />
+              <img src={featuredProduct.images[0] || defaultHeroImages[0]} alt={featuredProduct.title} />
               <span className="quickadd-badge">Special Discount</span>
             </div>
 
             <div className="quickadd-info-panel">
-              <span className="quickadd-tag">{featuredProduct.fabric}</span>
+              <span className="quickadd-tag">{featuredProduct.fabric || 'Premium Lawn'}</span>
               <h3 className="quickadd-title">{featuredProduct.title}</h3>
               
               <div className="quickadd-rating-row">
-                <span className="stars">{'★'.repeat(Math.round(featuredProduct.rating))}</span>
-                <span className="count">({featuredProduct.reviewsCount} verified reviews)</span>
+                <span className="stars">{'★'.repeat(Math.round(featuredProduct.rating || 5))}</span>
+                <span className="count">({featuredProduct.reviewsCount || 22} verified reviews)</span>
               </div>
 
               <div className="quickadd-prices">
-                <span className="current-price">Rs.{featuredProduct.price.toLocaleString()}</span>
-                <span className="original-price">Rs.{featuredProduct.originalPrice.toLocaleString()}</span>
-                <span className="discount-pill">
-                  SAVE {Math.round((1 - featuredProduct.price / featuredProduct.originalPrice) * 100)}%
-                </span>
+                <span className="current-price">Rs.{featuredProduct.price ? featuredProduct.price.toLocaleString() : '2,999'}</span>
+                {featuredProduct.originalPrice && (
+                  <span className="original-price">Rs.{featuredProduct.originalPrice.toLocaleString()}</span>
+                )}
+                {featuredProduct.originalPrice && (
+                  <span className="discount-pill">
+                    SAVE {Math.round((1 - featuredProduct.price / featuredProduct.originalPrice) * 100)}%
+                  </span>
+                )}
               </div>
 
               {/* Stock Urgency Progress Bar */}
               <div className="stock-urgency-box">
                 <div className="stock-left-text">
-                  <span>Only {featuredProduct.stock} items left in store</span>
+                  <span>Only {featuredProduct.stock || 8} items left in store</span>
                   <span className="selling-fast">SELLING OUT QUICK</span>
                 </div>
                 <div className="stock-progress-bar">
                   <div 
                     className="stock-progress-fill" 
-                    style={{ width: `${(featuredProduct.stock / 15) * 100}%` }}
+                    style={{ width: `${((featuredProduct.stock || 8) / 15) * 100}%` }}
                   ></div>
                 </div>
               </div>
@@ -225,7 +351,7 @@ export default function Home() {
                   <span className="sizing-link" onClick={() => setShowSizingModal(true)}>📐 View Sizing Guide</span>
                 </div>
                 <div className="size-pills">
-                  {featuredProduct.sizes.map((size) => (
+                  {(featuredProduct.sizes || ['Small', 'Medium', 'Large', 'Extra Large']).map((size) => (
                     <button 
                       key={size}
                       className={`size-pill ${featuredSize === size ? 'active' : ''}`}
@@ -281,7 +407,7 @@ export default function Home() {
           <div className="loading-placeholder">Loading new arrivals...</div>
         ) : (
           <div className="products-grid">
-            {products.slice(0, 4).map((product) => (
+            {products.slice(0, 8).map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
