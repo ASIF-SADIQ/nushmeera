@@ -29,18 +29,24 @@ const PORT = process.env.PORT || 5000;
 const rawMongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nushmeera';
 const MONGODB_URI = (() => {
   if (!rawMongoURI || rawMongoURI.includes('localhost')) return rawMongoURI;
-  try {
-    // If URI has no db name (ends with / or has ? right after host), inject 'nushmeera'
-    const url = new URL(rawMongoURI);
-    if (url.pathname === '/' || url.pathname === '') {
-      url.pathname = '/nushmeera';
-      return url.toString();
-    }
-    return rawMongoURI; // Already has a db name
-  } catch {
-    return rawMongoURI;
+  // Use string parsing instead of URL class (mongodb+srv:// is not a standard URL scheme)
+  // Pattern: mongodb+srv://user:pass@host/dbname?params
+  // We need to inject /nushmeera before the ? if no db name exists
+  const hasDbName = rawMongoURI.match(/mongodb(\+srv)?:\/\/[^/]+\/[^?]+/);
+  if (hasDbName) {
+    return rawMongoURI; // Already has a database name
   }
+  // No db name: insert /nushmeera before the ? or at the end
+  if (rawMongoURI.includes('?')) {
+    return rawMongoURI.replace('?', 'nushmeera?');
+  }
+  // URI ends with /
+  if (rawMongoURI.endsWith('/')) {
+    return rawMongoURI + 'nushmeera';
+  }
+  return rawMongoURI + '/nushmeera';
 })();
+console.log('DB URI target:', MONGODB_URI.replace(/:([^@]+)@/, ':***@')); // Log URI without password
 const DB_JSON_PATH = path.join(__dirname, 'data', 'db.json');
 
 // Ensure data folder exists
