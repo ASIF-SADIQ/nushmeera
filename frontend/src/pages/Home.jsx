@@ -16,89 +16,56 @@ export default function Home() {
 
   const { addToCart } = useContext(CartContext);
 
-  // 1. Hero Slideshow State
+  // 1. Hero 135-Product Slider State
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
-  // Fallback high-res luxury fashion image URLs for Hero Slides
-  const defaultHeroImages = [
-    'https://cdn.shopify.com/s/files/1/0713/6552/5615/files/ChatGPTImageJul9_2026_01_11_23AM_7.png?v=1783717621',
-    'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=80',
-    'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1600&q=80',
-    'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80'
-  ];
-
-  // Extract all valid image URLs from loaded products
-  const productImages = products
-    .flatMap(p => p.images || [])
-    .filter(url => url && typeof url === 'string' && url.startsWith('http'));
-
-  const heroSlides = [
+  // Filter products that have valid images
+  const validProducts = products.length > 0 ? products : [
     {
-      tagline: 'PREMIUM SUMMER COLLECTION 2026',
-      title: 'Summer Lawn Edit',
-      subtitle: 'Handcrafted luxury embroidered & printed lawn 3-piece suits.',
-      cta: 'Shop Collection',
+      _id: 'sample_1',
+      title: 'Summer Lawn Edit 2026',
       category: '3 Piece Suits',
-      image: productImages[0] || defaultHeroImages[0]
-    },
-    {
-      tagline: 'EXCLUSIVE FESTIVE SELECTION',
-      title: 'Luxury Embroidered Edit',
-      subtitle: 'Exquisite chiffon & organza embroidery for formal elegance.',
-      cta: 'Explore 3-Piece',
-      category: '3 Piece Suits',
-      image: productImages[4] || defaultHeroImages[1]
-    },
-    {
-      tagline: 'EVERYDAY COMFORT & STYLE',
-      title: 'Chic 2-Piece & Co-Ords',
-      subtitle: 'Modern silhouettes designed for everyday elegance.',
-      cta: 'Browse 2-Piece',
-      category: '2 Piece Sets',
-      image: productImages[8] || defaultHeroImages[2]
-    },
-    {
-      tagline: 'AFFORDABLE LUXURY FASHION',
-      title: 'Dresses Under Rs. 2,999',
-      subtitle: 'High-end lawn & linen outfits at unbeatable value.',
-      cta: 'Shop Under 2999',
-      category: 'Dresses under 2999',
-      image: productImages[12] || defaultHeroImages[3]
+      fabric: 'Embroidered Lawn',
+      price: 3690,
+      originalPrice: 5990,
+      images: ['https://cdn.shopify.com/s/files/1/0713/6552/5615/files/ChatGPTImageJul9_2026_01_11_23AM_7.png?v=1783717621']
     }
   ];
 
-  // Auto-play Hero Slideshow every 5 seconds
+  // Auto-play 135-Product Hero Slider every 4 seconds continuously
   useEffect(() => {
+    if (validProducts.length === 0) return;
     const slideTimer = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 5000);
+      setCurrentSlideIndex((prev) => (prev + 1) % validProducts.length);
+    }, 4000); // 4 seconds per slide
+
     return () => clearInterval(slideTimer);
-  }, [heroSlides.length]);
+  }, [validProducts.length]);
 
   const nextSlide = () => {
-    setCurrentSlideIndex((prev) => (prev + 1) % heroSlides.length);
+    setCurrentSlideIndex((prev) => (prev + 1) % validProducts.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlideIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+    setCurrentSlideIndex((prev) => (prev - 1 + validProducts.length) % validProducts.length);
   };
 
-  // 2. Rotational Category Cards State (Rotates image every 15 seconds)
-  const [catImageIndexes, setCatImageIndexes] = useState([0, 1, 2]);
+  // 2. Auto-Rotational Category Cards State (Rotates image every 10 seconds)
+  const [catImageIndexes, setCatImageIndexes] = useState([0, 2, 4]);
 
   useEffect(() => {
-    if (productImages.length === 0) return;
+    if (validProducts.length === 0) return;
 
     const catTimer = setInterval(() => {
       setCatImageIndexes(prev => [
-        (prev[0] + 3) % productImages.length,
-        (prev[1] + 5) % productImages.length,
-        (prev[2] + 7) % productImages.length
+        (prev[0] + 3) % validProducts.length,
+        (prev[1] + 5) % validProducts.length,
+        (prev[2] + 7) % validProducts.length
       ]);
-    }, 15000); // Rotates every 15 seconds
+    }, 10000);
 
     return () => clearInterval(catTimer);
-  }, [productImages.length]);
+  }, [validProducts.length]);
 
   useEffect(() => {
     if (activePage === 'about') {
@@ -118,60 +85,114 @@ export default function Home() {
     navigateTo('shop');
   };
 
-  const featuredProduct = products[0] || null;
-  const winners = products.slice(1, 4);
+  const activeHeroProduct = validProducts[currentSlideIndex] || validProducts[0];
+  const featuredProduct = validProducts[0] || null;
+  const winners = validProducts.slice(1, 5);
 
-  // Images for the 3 Category Cards
-  const cat1Image = productImages[catImageIndexes[0]] || defaultHeroImages[1];
-  const cat2Image = productImages[catImageIndexes[1]] || defaultHeroImages[0];
-  const cat3Image = productImages[catImageIndexes[2]] || defaultHeroImages[2];
+  const cat1Product = validProducts[catImageIndexes[0] % validProducts.length];
+  const cat2Product = validProducts[catImageIndexes[1] % validProducts.length];
+  const cat3Product = validProducts[catImageIndexes[2] % validProducts.length];
 
   return (
     <div className="home-page">
-      {/* 1. Interactive Hero Slider Banner */}
-      <section className="hero-slider-section">
-        {heroSlides.map((slide, index) => (
-          <div
-            key={index}
-            className={`hero-slide ${index === currentSlideIndex ? 'active' : ''}`}
-            style={{ backgroundImage: `url('${slide.image}')` }}
-          >
-            <div className="hero-overlay"></div>
-            <div className="hero-content">
-              <p className="hero-tagline">{slide.tagline}</p>
-              <h1 className="hero-title">{slide.title}</h1>
-              <p className="hero-subtitle">{slide.subtitle}</p>
+      {/* 1. Ultra-Luxury Split-Screen 135-Product Hero Slider */}
+      <section className="hero-product-slider">
+        <div className="hero-product-container container">
+          {/* Left Text Panel */}
+          <div className="hero-product-text">
+            <div className="hero-product-badge">
+              <span>✨ CATALOG HIGHLIGHT {currentSlideIndex + 1} OF {validProducts.length}</span>
+            </div>
+            
+            <span className="hero-product-category">{activeHeroProduct.category || 'Luxury Pret'}</span>
+            <h1 className="hero-product-title">{activeHeroProduct.title}</h1>
+            
+            <div className="hero-product-meta">
+              <span className="meta-pill">{activeHeroProduct.fabric || 'Premium Lawn'}</span>
+              <span className="meta-pill">100% Uncropped Original</span>
+            </div>
+
+            <div className="hero-product-pricing">
+              <span className="hero-price">Rs. {activeHeroProduct.price ? activeHeroProduct.price.toLocaleString() : '2,999'}</span>
+              {activeHeroProduct.originalPrice && (
+                <span className="hero-original-price">Rs. {activeHeroProduct.originalPrice.toLocaleString()}</span>
+              )}
+              {activeHeroProduct.originalPrice && (
+                <span className="hero-discount-pill">
+                  SAVE {Math.round((1 - activeHeroProduct.price / activeHeroProduct.originalPrice) * 100)}%
+                </span>
+              )}
+            </div>
+
+            <div className="hero-product-actions">
               <button 
-                onClick={() => handleCategorySelect(slide.category)} 
-                className="hero-btn"
+                onClick={() => navigateTo('product', activeHeroProduct)} 
+                className="hero-btn-primary"
               >
-                {slide.cta} →
+                Shop Outfit →
+              </button>
+              <button 
+                onClick={() => handleCategorySelect(activeHeroProduct.category || '')} 
+                className="hero-btn-secondary"
+              >
+                Browse Category
               </button>
             </div>
+
+            {/* Slide Navigation Controls */}
+            <div className="hero-slider-controls">
+              <button className="ctrl-btn" onClick={prevSlide} aria-label="Previous Product">❮ Prev</button>
+              <div className="slider-counter">
+                <strong>{currentSlideIndex + 1}</strong> / {validProducts.length}
+              </div>
+              <button className="ctrl-btn" onClick={nextSlide} aria-label="Next Product">Next ❯</button>
+            </div>
           </div>
-        ))}
 
-        {/* Carousel Prev/Next Navigation Controls */}
-        <button className="hero-arrow hero-arrow-left" onClick={prevSlide} aria-label="Previous Slide">
-          ❮
-        </button>
-        <button className="hero-arrow hero-arrow-right" onClick={nextSlide} aria-label="Next Slide">
-          ❯
-        </button>
-
-        {/* Slide Indicator Dots */}
-        <div className="hero-dots">
-          {heroSlides.map((_, index) => (
-            <span
-              key={index}
-              className={`hero-dot ${index === currentSlideIndex ? 'active' : ''}`}
-              onClick={() => setCurrentSlideIndex(index)}
-            ></span>
-          ))}
+          {/* Right Uncropped Product Image Frame */}
+          <div className="hero-product-image-frame">
+            <div className="hero-img-backdrop"></div>
+            <img 
+              key={activeHeroProduct._id}
+              src={activeHeroProduct.images && activeHeroProduct.images[0] ? activeHeroProduct.images[0] : '/images/vaneeza_pink.png'} 
+              alt={activeHeroProduct.title} 
+              className="hero-product-img"
+            />
+            {/* Quick Tag */}
+            <div className="hero-img-floating-tag">
+              <span>💖 {activeHeroProduct.reviewsCount || 24} Verified Reviews</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 2. Trusted By - Customer Statistics & Features Card Block */}
+      {/* 2. Continuous Auto-Scrolling Infinite Product Showcase */}
+      <section className="infinite-marquee-section">
+        <div className="marquee-header container">
+          <h3>🔥 Live Catalog Carousel • {validProducts.length} Uncropped Designs Auto-Rotating</h3>
+        </div>
+        <div className="marquee-track-container">
+          <div className="marquee-track">
+            {validProducts.concat(validProducts).map((prod, idx) => (
+              <div 
+                key={`${prod._id}-${idx}`} 
+                className="marquee-item"
+                onClick={() => navigateTo('product', prod)}
+              >
+                <div className="marquee-img-wrap">
+                  <img src={prod.images && prod.images[0] ? prod.images[0] : '/images/vaneeza_pink.png'} alt={prod.title} />
+                </div>
+                <div className="marquee-item-info">
+                  <span className="marquee-title">{prod.title}</span>
+                  <span className="marquee-price">Rs.{prod.price ? prod.price.toLocaleString() : '2,999'}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Trusted By - Customer Statistics & Features Card Block */}
       <section className="trusted-by-section container">
         <div className="trusted-by-grid">
           <div className="trust-card">
@@ -205,21 +226,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Shop by Category Grid with Rotational Product Images */}
+      {/* 4. Shop by Category Grid with Full Uncropped Product Images */}
       <section className="categories-section container">
         <div className="section-title-wrap">
           <h2 className="section-title">Shop by Category</h2>
-          <p className="section-subtitle">Curated edits made for everyday luxury • Auto-rotating gallery</p>
+          <p className="section-subtitle">Curated edits made for everyday luxury • Auto-rotating gallery (Full Uncropped View)</p>
         </div>
         <div className="categories-grid">
           <div 
             onClick={() => handleCategorySelect('New Arrival')}
-            className="category-card"
-            style={{ backgroundImage: `url('${cat1Image}')` }}
+            className="category-card-uncropped"
           >
-            <div className="category-overlay"></div>
-            <span className="rotating-badge">🔄 Live Gallery</span>
-            <div className="category-details">
+            <div className="cat-card-img-frame">
+              <img 
+                src={cat1Product && cat1Product.images ? cat1Product.images[0] : ''} 
+                alt="New Arrival" 
+              />
+              <span className="rotating-badge">🔄 Live Gallery</span>
+            </div>
+            <div className="category-details-bar">
               <h3>New Arrival</h3>
               <span className="category-link">EXPLORE EDIT →</span>
             </div>
@@ -227,12 +252,16 @@ export default function Home() {
 
           <div 
             onClick={() => handleCategorySelect('3 Piece Suits')}
-            className="category-card"
-            style={{ backgroundImage: `url('${cat2Image}')` }}
+            className="category-card-uncropped"
           >
-            <div className="category-overlay"></div>
-            <span className="rotating-badge">🔄 Live Gallery</span>
-            <div className="category-details">
+            <div className="cat-card-img-frame">
+              <img 
+                src={cat2Product && cat2Product.images ? cat2Product.images[0] : ''} 
+                alt="Summer Lawn Edit" 
+              />
+              <span className="rotating-badge">🔄 Live Gallery</span>
+            </div>
+            <div className="category-details-bar">
               <h3>Summer Lawn Edit</h3>
               <span className="category-link">EXPLORE EDIT →</span>
             </div>
@@ -240,12 +269,16 @@ export default function Home() {
 
           <div 
             onClick={() => handleCategorySelect('Dresses under 2999')}
-            className="category-card"
-            style={{ backgroundImage: `url('${cat3Image}')` }}
+            className="category-card-uncropped"
           >
-            <div className="category-overlay"></div>
-            <span className="rotating-badge">🔄 Live Gallery</span>
-            <div className="category-details">
+            <div className="cat-card-img-frame">
+              <img 
+                src={cat3Product && cat3Product.images ? cat3Product.images[0] : ''} 
+                alt="Dresses Under 2999" 
+              />
+              <span className="rotating-badge">🔄 Live Gallery</span>
+            </div>
+            <div className="category-details-bar">
               <h3>Dresses Under 2999</h3>
               <span className="category-link">EXPLORE EDIT →</span>
             </div>
@@ -253,7 +286,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Winners of the Month Showcase */}
+      {/* 5. Winners of the Month Showcase */}
       <section className="winners-section container">
         <div className="section-title-wrap">
           <h2 className="section-title">Winners of the Month</h2>
@@ -274,27 +307,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* 5. Narrative "Our Story" Brand Segment */}
-      <section className="our-story-section">
-        <div className="container story-content-wrap">
-          <div 
-            className="story-image" 
-            style={{ backgroundImage: `url('${productImages[15] || defaultHeroImages[3]}')` }}
-          ></div>
-          <div className="story-text-panel">
-            <span className="story-tagline">NUSHMEERA CLOTHES</span>
-            <h2>Our Story & Craft</h2>
-            <p>
-              Born from a love for delicate embroideries and breathable Pakistani lawns, Nushmeera Clothes blends classic aesthetics with contemporary comfort. We source the finest long-staple cotton yarns and print them with non-toxic, skin-friendly colors.
-            </p>
-            <p>
-              Each design tells a story of craftsmanship. Our weavers, embroiderers, and tailors align to bring you outfits that make you stand out, whether in a casual meeting or a formal evening gathering.
-            </p>
-            <button onClick={() => navigateTo('contact')} className="story-btn">Read Our Manifesto</button>
-          </div>
-        </div>
-      </section>
-
       {/* 6. Featured Product Quick Add Panel */}
       {featuredProduct && (
         <section className="featured-quickadd-section container">
@@ -305,7 +317,7 @@ export default function Home() {
 
           <div className="featured-quickadd-card">
             <div className="quickadd-image-panel">
-              <img src={featuredProduct.images[0] || defaultHeroImages[0]} alt={featuredProduct.title} />
+              <img src={featuredProduct.images && featuredProduct.images[0] ? featuredProduct.images[0] : ''} alt={featuredProduct.title} />
               <span className="quickadd-badge">Special Discount</span>
             </div>
 
@@ -407,7 +419,7 @@ export default function Home() {
           <div className="loading-placeholder">Loading new arrivals...</div>
         ) : (
           <div className="products-grid">
-            {products.slice(0, 8).map((product) => (
+            {validProducts.slice(0, 8).map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
