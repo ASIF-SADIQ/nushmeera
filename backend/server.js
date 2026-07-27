@@ -24,7 +24,23 @@ app.use(express.json({ limit: '50mb' }));
 const PORT = process.env.PORT || 5000;
 
 // Database Configuration
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nushmeera';
+// Force the database name to always be 'nushmeera'
+// This ensures the correct DB is used regardless of env variable format
+const rawMongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nushmeera';
+const MONGODB_URI = (() => {
+  if (!rawMongoURI || rawMongoURI.includes('localhost')) return rawMongoURI;
+  try {
+    // If URI has no db name (ends with / or has ? right after host), inject 'nushmeera'
+    const url = new URL(rawMongoURI);
+    if (url.pathname === '/' || url.pathname === '') {
+      url.pathname = '/nushmeera';
+      return url.toString();
+    }
+    return rawMongoURI; // Already has a db name
+  } catch {
+    return rawMongoURI;
+  }
+})();
 const DB_JSON_PATH = path.join(__dirname, 'data', 'db.json');
 
 // Ensure data folder exists
