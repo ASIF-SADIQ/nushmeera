@@ -32,7 +32,7 @@ export default function Home() {
       subtitle: 'Handcrafted luxury embroidered & printed lawn 3-piece suits.',
       cta: 'Shop Collection',
       category: '3 Piece Suits',
-      image: productImages[0] || 'https://cdn.shopify.com/s/files/1/0713/6552/5615/files/ChatGPTImageJul9_2026_01_11_23AM_7.png?v=1783717621'
+      image: '/images/s2 (1).png'
     },
     {
       tagline: 'EXCLUSIVE FESTIVE SELECTION',
@@ -40,7 +40,7 @@ export default function Home() {
       subtitle: 'Exquisite chiffon & organza embroidery for formal elegance.',
       cta: 'Explore 3-Piece',
       category: '3 Piece Suits',
-      image: productImages[3] || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=80'
+      image: '/images/s2 (2).png'
     },
     {
       tagline: 'EVERYDAY COMFORT & STYLE',
@@ -48,7 +48,7 @@ export default function Home() {
       subtitle: 'Modern silhouettes designed for everyday elegance.',
       cta: 'Browse 2-Piece',
       category: '2 Piece Sets',
-      image: productImages[6] || 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1600&q=80'
+      image: '/images/s2 (3).png'
     },
     {
       tagline: 'AFFORDABLE LUXURY FASHION',
@@ -56,7 +56,7 @@ export default function Home() {
       subtitle: 'High-end lawn & linen outfits at unbeatable value.',
       cta: 'Shop Under 2999',
       category: 'Dresses under 2999',
-      image: productImages[9] || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80'
+      image: '/images/s2 (4).png'
     }
   ];
 
@@ -74,6 +74,54 @@ export default function Home() {
 
   const prevSlide = () => {
     setCurrentSlideIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+  };
+
+  // 2. Our Story & Craft Interactive Random Products Slider State
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const [randomStoryProducts, setRandomStoryProducts] = useState([]);
+
+  useEffect(() => {
+    if (products && products.length > 0) {
+      const validProds = products.filter(
+        p => p.images && p.images.length > 0 && typeof p.images[0] === 'string'
+      );
+      if (validProds.length > 0) {
+        // Take a randomized selection of up to 8 products
+        const shuffled = [...validProds].sort(() => 0.5 - Math.random());
+        setRandomStoryProducts(shuffled.slice(0, 8));
+      }
+    }
+  }, [products]);
+
+  const storySlidesToDisplay = randomStoryProducts.length > 0
+    ? randomStoryProducts.map(p => ({
+        id: p._id,
+        title: p.title,
+        price: p.price,
+        category: p.category || 'Featured Edit',
+        image: p.images[0],
+        productObj: p
+      }))
+    : [
+        { id: 1, title: 'Summer Lawn Edit', price: 4600, category: '3 Piece Suits', image: '/images/s2 (1).png' },
+        { id: 2, title: 'Luxury Embroidered Edit', price: 5580, category: '3 Piece Suits', image: '/images/s2 (2).png' },
+        { id: 3, title: 'Chic 2-Piece & Co-Ords', price: 3299, category: '2 Piece Sets', image: '/images/s2 (3).png' },
+        { id: 4, title: 'Dresses Under Rs. 2,999', price: 2856, category: 'Dresses under 2999', image: '/images/s2 (4).png' }
+      ];
+
+  useEffect(() => {
+    const storyTimer = setInterval(() => {
+      setCurrentStoryIndex((prev) => (prev + 1) % storySlidesToDisplay.length);
+    }, 4500);
+    return () => clearInterval(storyTimer);
+  }, [storySlidesToDisplay.length]);
+
+  const nextStorySlide = () => {
+    setCurrentStoryIndex((prev) => (prev + 1) % storySlidesToDisplay.length);
+  };
+
+  const prevStorySlide = () => {
+    setCurrentStoryIndex((prev) => (prev - 1 + storySlidesToDisplay.length) % storySlidesToDisplay.length);
   };
 
   useEffect(() => {
@@ -94,7 +142,7 @@ export default function Home() {
     navigateTo('shop');
   };
 
-  const featuredProduct = products[0] || null;
+  const featuredProduct = products.find(p => p.title?.toLowerCase().includes('osen') || p.handle === 'osen-black-3pc') || products[0] || null;
   const winners = products.slice(1, 4);
 
   // Pick top category images
@@ -110,7 +158,7 @@ export default function Home() {
           <div
             key={index}
             className={`hero-slide ${index === currentSlideIndex ? 'active' : ''}`}
-            style={{ backgroundImage: `url('${slide.image}')` }}
+            style={{ backgroundImage: `url('${encodeURI(slide.image)}')` }}
           >
             <div className="hero-overlay"></div>
             <div className="hero-content">
@@ -250,10 +298,57 @@ export default function Home() {
       {/* 5. Narrative "Our Story" Brand Segment */}
       <section className="our-story-section">
         <div className="container story-content-wrap">
-          <div 
-            className="story-image" 
-            style={{ backgroundImage: `url('${productImages[4] || cat1Image}')` }}
-          ></div>
+          <div className="story-slider-container">
+            {storySlidesToDisplay.map((slide, index) => (
+              <div
+                key={slide.id || index}
+                className={`story-slide ${index === currentStoryIndex ? 'active' : ''}`}
+                style={{ backgroundImage: `url('${encodeURI(slide.image)}')` }}
+              >
+                <div className="story-slide-overlay">
+                  <div className="story-slide-info">
+                    <span className="story-slide-badge">{slide.category}</span>
+                    <h4 className="story-slide-title">{slide.title}</h4>
+                    <p className="story-slide-price">Rs.{slide.price?.toLocaleString()}</p>
+                    {slide.productObj && (
+                      <button 
+                        className="story-slide-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigateTo('product', slide.productObj);
+                        }}
+                      >
+                        Quick View ➔
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button 
+              className="story-arrow story-arrow-left" 
+              onClick={prevStorySlide}
+              aria-label="Previous Story Slide"
+            >
+              ❮
+            </button>
+            <button 
+              className="story-arrow story-arrow-right" 
+              onClick={nextStorySlide}
+              aria-label="Next Story Slide"
+            >
+              ❯
+            </button>
+            <div className="story-dots">
+              {storySlidesToDisplay.map((_, index) => (
+                <span
+                  key={index}
+                  className={`story-dot ${index === currentStoryIndex ? 'active' : ''}`}
+                  onClick={() => setCurrentStoryIndex(index)}
+                ></span>
+              ))}
+            </div>
+          </div>
           <div className="story-text-panel">
             <span className="story-tagline">NUSHMEERA CLOTHES</span>
             <h2>Our Story & Craft</h2>
