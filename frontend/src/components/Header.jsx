@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { ProductContext } from '../context/ProductContext';
 import { CartContext } from '../context/CartContext';
+import { SearchIcon, CartIcon, UserIcon, PhoneIcon, ClockIcon, BanknoteIcon, TruckIcon } from './Icons';
 
 export default function Header() {
   const {
@@ -38,13 +39,13 @@ export default function Header() {
       <div className="announcement-bar">
         <div className="marquee-container">
           <div className="marquee-content">
-            <div className="marquee-item"><span>⏳</span> Hurry! Limited Stock Available</div>
-            <div className="marquee-item"><span>💵</span> Cash on Delivery Available Across Pakistan</div>
-            <div className="marquee-item"><span>🚀</span> Free Nationwide Delivery on Orders Over Rs. 7,000+</div>
+            <div className="marquee-item"><ClockIcon size={14} color="var(--accent-color)" /> Hurry! Limited Stock Available</div>
+            <div className="marquee-item"><BanknoteIcon size={14} color="var(--accent-color)" /> Cash on Delivery Available Across Pakistan</div>
+            <div className="marquee-item"><TruckIcon size={14} color="var(--accent-color)" /> Free Nationwide Delivery on Orders Over Rs. 7,000+</div>
             {/* Duplicate for infinite loop */}
-            <div className="marquee-item"><span>⏳</span> Hurry! Limited Stock Available</div>
-            <div className="marquee-item"><span>💵</span> Cash on Delivery Available Across Pakistan</div>
-            <div className="marquee-item"><span>🚀</span> Free Nationwide Delivery on Orders Over Rs. 7,000+</div>
+            <div className="marquee-item"><ClockIcon size={14} color="var(--accent-color)" /> Hurry! Limited Stock Available</div>
+            <div className="marquee-item"><BanknoteIcon size={14} color="var(--accent-color)" /> Cash on Delivery Available Across Pakistan</div>
+            <div className="marquee-item"><TruckIcon size={14} color="var(--accent-color)" /> Free Nationwide Delivery on Orders Over Rs. 7,000+</div>
           </div>
         </div>
       </div>
@@ -63,7 +64,9 @@ export default function Header() {
           </button>
 
           <div className="header-helpline">
-            <span>📞 Support: +92 308 6195677</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <PhoneIcon size={15} color="var(--accent-color)" /> Support: +92 308 6195677
+            </span>
           </div>
 
           <div className="logo-container" style={{ cursor: 'pointer' }} onClick={() => navigateTo('home')}>
@@ -74,10 +77,14 @@ export default function Header() {
           </div>
 
           <div className="header-icons">
-            <button className="header-icon-btn" onClick={() => setShowSearchModal(true)} aria-label="Search">🔍</button>
-            <button className="header-icon-btn" aria-label="Profile">👤</button>
-            <button className="header-icon-btn" onClick={() => setShowCartDrawer(true)} aria-label="Cart">
-              👜
+            <button className="header-icon-btn" onClick={() => setShowSearchModal(true)} aria-label="Search" title="Search Products">
+              <SearchIcon size={20} color="currentColor" />
+            </button>
+            <button className="header-icon-btn" aria-label="Profile" title="User Profile">
+              <UserIcon size={20} color="currentColor" />
+            </button>
+            <button className="header-icon-btn" onClick={() => setShowCartDrawer(true)} aria-label="Cart" title="Shopping Cart">
+              <CartIcon size={21} color="currentColor" />
               {totalCartQty > 0 && (
                 <span className="cart-count-badge">
                   {totalCartQty}

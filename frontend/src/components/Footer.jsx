@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { ProductContext } from '../context/ProductContext';
+import { WhatsappIcon, MailIcon, PhoneIcon, LocationIcon } from './Icons';
 
 export default function Footer() {
   const { navigateTo, setSelectedCategory } = useContext(ProductContext);
@@ -13,8 +14,14 @@ export default function Footer() {
   return (
     <>
       {/* Floating Whatsapp button */}
-      <a href="https://wa.me/923086195677" target="_blank" rel="noopener noreferrer" className="whatsapp-widget" aria-label="Chat on WhatsApp">
-        💬
+      <a 
+        href="https://wa.me/923086195677" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="whatsapp-widget" 
+        aria-label="Chat on WhatsApp"
+      >
+        <WhatsappIcon size={28} color="#ffffff" />
       </a>
 
       {/* Footers */}
@@ -46,9 +53,15 @@ export default function Footer() {
             </div>
             <div>
               <h3 className="footer-col-title">Store Details</h3>
-              <p className="footer-contact-item">📧 nushmeera4@gmail.com</p>
-              <p className="footer-contact-item">📞 +92 308 6195677</p>
-              <p className="footer-contact-item">📍 LDA Avenue, Lahore, Pakistan</p>
+              <p className="footer-contact-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <MailIcon size={16} color="var(--accent-color)" /> nushmeera4@gmail.com
+              </p>
+              <p className="footer-contact-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PhoneIcon size={16} color="var(--accent-color)" /> +92 308 6195677
+              </p>
+              <p className="footer-contact-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <LocationIcon size={16} color="var(--accent-color)" /> LDA Avenue, Lahore, Pakistan
+              </p>
             </div>
           </div>
 

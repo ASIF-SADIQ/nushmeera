@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { ProductContext } from '../context/ProductContext';
 import { CartContext } from '../context/CartContext';
 import ProductCard from '../components/ProductCard';
+import { StarIcon, TruckIcon, RefreshIcon, BanknoteIcon } from '../components/Icons';
 
 export default function Home() {
   const {
@@ -199,28 +200,28 @@ export default function Home() {
       <section className="trusted-by-section container">
         <div className="trusted-by-grid">
           <div className="trust-card">
-            <span className="trust-icon">⭐</span>
+            <span className="trust-icon"><StarIcon size={24} color="var(--accent-color)" fill="var(--accent-color)" /></span>
             <div className="trust-info">
               <h4>7,500+ Customers</h4>
               <p>Highly rated MERN store</p>
             </div>
           </div>
           <div className="trust-card">
-            <span className="trust-icon">🚀</span>
+            <span className="trust-icon"><TruckIcon size={24} color="var(--accent-color)" /></span>
             <div className="trust-info">
               <h4>Free Shipping</h4>
               <p>On orders above Rs. 7,000+</p>
             </div>
           </div>
           <div className="trust-card">
-            <span className="trust-icon">🔁</span>
+            <span className="trust-icon"><RefreshIcon size={24} color="var(--accent-color)" /></span>
             <div className="trust-info">
               <h4>7-Day Exchange</h4>
               <p>Easy exchanges nationwide</p>
             </div>
           </div>
           <div className="trust-card">
-            <span className="trust-icon">💵</span>
+            <span className="trust-icon"><BanknoteIcon size={24} color="var(--accent-color)" /></span>
             <div className="trust-info">
               <h4>Cash on Delivery</h4>
               <p>Pay upon delivery across Pakistan</p>
