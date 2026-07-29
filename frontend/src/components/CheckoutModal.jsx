@@ -18,6 +18,7 @@ export default function CheckoutModal() {
   } = useContext(CartContext);
 
   const [checkoutName, setCheckoutName] = useState('');
+  const [checkoutEmail, setCheckoutEmail] = useState('');
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutAddress, setCheckoutAddress] = useState('');
   const [checkoutCity, setCheckoutCity] = useState('');
@@ -35,6 +36,7 @@ export default function CheckoutModal() {
   useEffect(() => {
     if (!showCheckoutModal) {
       setCheckoutName('');
+      setCheckoutEmail('');
       setCheckoutPhone('');
       setCheckoutAddress('');
       setCheckoutCity('');
@@ -114,6 +116,7 @@ export default function CheckoutModal() {
           cartItems: cart,
           customerDetails: {
             name: checkoutName,
+            email: checkoutEmail,
             phone: checkoutPhone,
             address: checkoutAddress,
             city: checkoutCity
@@ -242,6 +245,17 @@ export default function CheckoutModal() {
                 value={checkoutName}
                 onChange={(e) => setCheckoutName(e.target.value)}
                 placeholder="e.g. Asif Sadiq"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Email Address (For Order Confirmation)</label>
+              <input
+                type="email"
+                className="form-control"
+                value={checkoutEmail}
+                onChange={(e) => setCheckoutEmail(e.target.value)}
+                placeholder="e.g. customer@gmail.com"
                 required
               />
             </div>
