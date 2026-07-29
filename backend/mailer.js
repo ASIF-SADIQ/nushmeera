@@ -5,12 +5,17 @@ dotenv.config();
 const EMAIL_USER = process.env.EMAIL_USER || 'nushmeera4@gmail.com';
 const EMAIL_PASS = process.env.EMAIL_PASS || 'mldqbcasitpxttkd';
 
-// Initialize the transporter using Gmail SMTP
+// Initialize the transporter using Gmail SMTP over SSL (Port 465 for Cloud Servers)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // SSL required for Render cloud server execution
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 });
 
