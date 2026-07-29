@@ -2,12 +2,15 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
 
+const EMAIL_USER = process.env.EMAIL_USER || 'nushmeera4@gmail.com';
+const EMAIL_PASS = process.env.EMAIL_PASS || 'mldqbcasitpxttkd';
+
 // Initialize the transporter using Gmail SMTP
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: EMAIL_USER,
+    pass: EMAIL_PASS
   }
 });
 
@@ -16,62 +19,71 @@ const transporter = nodemailer.createTransport({
  * @param {Object} order - The created order object
  */
 export const sendOrderEmails = async (order) => {
-  // If credentials are not set, log and skip (prevents crashes on local/dev)
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log('⚠️ Email credentials not configured. Skipping order notification emails.');
-    return;
-  }
+  console.log(`📧 Triggering order emails for order ${order.orderId}...`);
 
-  const adminEmail = process.env.EMAIL_USER; // Send admin notifications to the same email
+  const adminEmail = EMAIL_USER; // Send admin notifications to nushmeera4@gmail.com
   const customerEmail = order.customerDetails?.email;
+  const customerName = order.customerDetails?.name || order.customerDetails?.firstName || 'Valued Customer';
   
   if (!customerEmail) {
     console.log(`⚠️ No email provided for order ${order.orderId}. Skipping customer email.`);
   }
 
   // Format cart items
-  const itemsHtml = order.cartItems.map(item => 
-    `<li>${item.quantity}x ${item.title} - Rs. ${item.price}</li>`
+  const itemsHtml = (order.cartItems || []).map(item => 
+    `<li style="padding: 6px 0; border-bottom: 1px dashed #eee;"><strong>${item.quantity}x</strong> ${item.title} (${item.size || 'Standard'}) - <strong>Rs. ${item.price}</strong></li>`
   ).join('');
 
   // 1. Admin Email Options
   const adminMailOptions = {
-    from: `"Nushmeera System" <${process.env.EMAIL_USER}>`,
+    from: `"Nushmeera Orders" <${EMAIL_USER}>`,
     to: adminEmail,
     subject: `🚨 New Order Received: ${order.orderId}`,
     html: `
-      <h2>New Order Received!</h2>
-      <p><strong>Order ID:</strong> ${order.orderId}</p>
-      <p><strong>Total Amount:</strong> Rs. ${order.totalAmount}</p>
-      
-      <h3>Customer Details</h3>
-      <p><strong>Name:</strong> ${order.customerDetails?.firstName} ${order.customerDetails?.lastName}</p>
-      <p><strong>Email:</strong> ${order.customerDetails?.email || 'N/A'}</p>
-      <p><strong>Phone:</strong> ${order.customerDetails?.phone}</p>
-      <p><strong>Address:</strong> ${order.customerDetails?.address}, ${order.customerDetails?.city}</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <h2 style="color: #0f3d33; margin-top: 0;">🎉 New Order Received!</h2>
+        <p><strong>Order ID:</strong> ${order.orderId}</p>
+        <p><strong>Total Amount:</strong> <span style="font-size: 1.2em; color: #D4AF37;">Rs. ${order.totalAmount}</span></p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 15px 0;" />
 
-      <h3>Order Items</h3>
-      <ul>${itemsHtml}</ul>
+        <h3 style="color: #0f3d33;">Customer Information</h3>
+        <p><strong>Name:</strong> ${customerName}</p>
+        <p><strong>Email:</strong> ${customerEmail || 'N/A'}</p>
+        <p><strong>Phone:</strong> ${order.customerDetails?.phone}</p>
+        <p><strong>Shipping Address:</strong> ${order.customerDetails?.address}, ${order.customerDetails?.city}</p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 15px 0;" />
+
+        <h3 style="color: #0f3d33;">Ordered Items</h3>
+        <ul style="list-style: none; padding-left: 0;">${itemsHtml}</ul>
+      </div>
     `
   };
 
   // 2. Customer Email Options
   const customerMailOptions = {
-    from: `"Nushmeera" <${process.env.EMAIL_USER}>`,
+    from: `"Nushmeera Clothes" <${EMAIL_USER}>`,
     to: customerEmail,
     subject: `Order Confirmation - ${order.orderId}`,
     html: `
-      <h2>Thank you for your order!</h2>
-      <p>Hi ${order.customerDetails?.firstName},</p>
-      <p>Your order <strong>${order.orderId}</strong> has been successfully placed. We will begin processing it right away.</p>
-      
-      <h3>Order Summary</h3>
-      <ul>${itemsHtml}</ul>
-      <p><strong>Total Paid / COD Amount:</strong> Rs. ${order.totalAmount}</p>
-      
-      <p>If you have any questions, feel free to reply to this email or contact us on WhatsApp at 03086195677.</p>
-      <br>
-      <p>Best regards,<br>Team Nushmeera</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <h2 style="color: #0f3d33; margin-top: 0;">Thank You for Your Order!</h2>
+        <p>Hi <strong>${customerName}</strong>,</p>
+        <p>We have successfully received your Cash on Delivery order <strong>${order.orderId}</strong>. Our team is now preparing your parcel for dispatch.</p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 15px 0;" />
+
+        <h3 style="color: #0f3d33;">Order Summary</h3>
+        <ul style="list-style: none; padding-left: 0;">${itemsHtml}</ul>
+        <p style="font-size: 1.1em;"><strong>Total Payable (COD):</strong> <span style="color: #0f3d33; font-weight: bold;">Rs. ${order.totalAmount}</span></p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 15px 0;" />
+
+        <p>If you have any questions, reply directly to this email or contact us on WhatsApp at <strong>+92 308 6195677</strong>.</p>
+        <br>
+        <p>Best regards,<br><strong>Team Nushmeera Clothes</strong></p>
+      </div>
     `
   };
 
