@@ -417,6 +417,11 @@ mongoose.connect(MONGODB_URI)
 
 // API Routes
 
+// Health check endpoint for Cron Ping (Keep-Alive)
+app.get('/api/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // GET all products
 app.get('/api/products', async (req, res) => {
   try {
