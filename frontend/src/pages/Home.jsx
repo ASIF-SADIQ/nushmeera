@@ -33,7 +33,7 @@ export default function Home() {
       subtitle: 'Handcrafted luxury embroidered & printed lawn 3-piece suits.',
       cta: 'Shop Collection',
       category: '3 Piece Suits',
-      image: '/images/s2 (1).png'
+      image: '/images/s2 (1).webp'
     },
     {
       tagline: 'EXCLUSIVE FESTIVE SELECTION',
@@ -41,7 +41,7 @@ export default function Home() {
       subtitle: 'Exquisite chiffon & organza embroidery for formal elegance.',
       cta: 'Explore 3-Piece',
       category: '3 Piece Suits',
-      image: '/images/s2 (2).png'
+      image: '/images/s2 (2).webp'
     },
     {
       tagline: 'EVERYDAY COMFORT & STYLE',
@@ -49,7 +49,7 @@ export default function Home() {
       subtitle: 'Modern silhouettes designed for everyday elegance.',
       cta: 'Browse 2-Piece',
       category: '2 Piece Sets',
-      image: '/images/s2 (3).png'
+      image: '/images/s2 (3).webp'
     },
     {
       tagline: 'AFFORDABLE LUXURY FASHION',
@@ -57,7 +57,7 @@ export default function Home() {
       subtitle: 'High-end lawn & linen outfits at unbeatable value.',
       cta: 'Shop Under 2999',
       category: 'Dresses under 2999',
-      image: '/images/s2 (4).png'
+      image: '/images/s2 (4).webp'
     }
   ];
 
