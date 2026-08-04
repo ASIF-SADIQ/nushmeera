@@ -11,6 +11,8 @@ import argon2 from 'argon2';
 import { z } from 'zod';
 import { initRedis, checkRateLimits, handleFailedLogin, handleSuccessfulLogin, requiresCaptcha, verifyCaptcha } from './rateLimiter.js';
 import { sendOrderEmails } from './mailer.js';
+import { v2 as cloudinary } from 'cloudinary';
+import multer from 'multer';
 
 dotenv.config();
 
@@ -21,7 +23,41 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
+const upload = multer({ storage: multer.memoryStorage() });
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
 const PORT = process.env.PORT || 5000;
+
+// POST /api/upload - Upload Product Image to Cloudinary
+app.post('/api/upload', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    const b64 = Buffer.from(req.file.buffer).toString('base64');
+    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+
+    const result = await cloudinary.uploader.upload(dataURI, {
+      folder: 'nushmeera_products',
+      transformation: [{ quality: 'auto', fetch_format: 'webp' }]
+    });
+
+    res.json({
+      success: true,
+      url: result.secure_url,
+      public_id: result.public_id
+    });
+  } catch (error) {
+    console.error('Cloudinary upload error:', error);
+    res.status(500).json({ error: error.message || 'Image upload failed' });
+  }
+});
 
 // Database Configuration
 // Force the database name to always be 'nushmeera'
