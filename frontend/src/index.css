@@ -798,8 +798,9 @@ button {
   transition: transform 0.3s ease;
   display: block;
   margin: 0 auto;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+  image-rendering: auto;
+  image-rendering: smooth;
+  -webkit-font-smoothing: antialiased;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
