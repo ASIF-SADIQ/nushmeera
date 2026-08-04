@@ -82,6 +82,35 @@ export default function AdminDashboard() {
   const [prodImages, setProdImages] = useState('/images/lilac_orchid.png');
   const [prodSizes, setProdSizes] = useState(['Small', 'Medium', 'Large']);
   const [prodDetails, setProdDetails] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleFileUploadToCloudinary = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    setUploadingImage(true);
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        setProdImages(prev => (prev && !prev.includes('/images/lilac_orchid.png') ? `${prev}, ${data.url}` : data.url));
+        if (typeof addToast === 'function') addToast('☁️ Image uploaded to Cloudinary successfully!');
+      } else {
+        alert('❌ Upload failed: ' + (data.error || 'Please check your Cloudinary credentials in .env'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Upload error. Please check backend connection.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   // Bulk Import States
   const [importType, setImportType] = useState('json'); // json, csv
@@ -1319,14 +1348,43 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Image URLs (comma-separated if multiple)</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={prodImages}
-                    onChange={(e) => setProdImages(e.target.value)}
-                    placeholder="e.g. /images/lilac_orchid.png"
-                  />
+                  <label className="form-label">Product Images (URLs or Upload to Cloudinary)</label>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      style={{ flex: 1 }}
+                      value={prodImages}
+                      onChange={(e) => setProdImages(e.target.value)}
+                      placeholder="e.g. https://res.cloudinary.com/..."
+                    />
+                    <label 
+                      style={{ 
+                        background: '#0f3d33', 
+                        color: '#D4AF37', 
+                        padding: '10px 18px', 
+                        borderRadius: '6px', 
+                        cursor: uploadingImage ? 'not-allowed' : 'pointer', 
+                        fontWeight: '600', 
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.85rem',
+                        opacity: uploadingImage ? 0.7 : 1
+                      }}
+                    >
+                      {uploadingImage ? '⏳ Uploading...' : '☁️ Upload File'}
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        style={{ display: 'none' }} 
+                        onChange={handleFileUploadToCloudinary}
+                        disabled={uploadingImage}
+                      />
+                    </label>
+                  </div>
+                  {uploadingImage && <p style={{ fontSize: '0.8rem', color: '#0f3d33', marginTop: '4px', margin: 0 }}>☁️ Uploading photo to Cloudinary CDN...</p>}
                 </div>
 
                 <div className="form-group">
