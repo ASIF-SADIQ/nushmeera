@@ -21,11 +21,16 @@ export default function ProductDetail() {
   const [activeAccordion, setActiveAccordion] = useState(0); // 0 = Details, 1 = Shipping, -1 = Closed
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+  // Fullscreen Lightbox Zoom Modal State
+  const [showLightbox, setShowLightbox] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+
   // Scroll to top when product details loads
   useEffect(() => {
     window.scrollTo(0, 0);
     setDetailQty(1);
     setActiveImageIndex(0);
+    setZoomLevel(1);
     if (selectedProduct) {
       setDetailSize(selectedProduct.sizes[0] || 'Medium');
       fetchReviews(selectedProduct._id);
@@ -50,20 +55,65 @@ export default function ProductDetail() {
     setShowCheckoutModal(true);
   };
 
+  const handlePrevImage = (e) => {
+    e.stopPropagation();
+    setActiveImageIndex((prev) => (prev === 0 ? selectedProduct.images.length - 1 : prev - 1));
+    setZoomLevel(1);
+  };
+
+  const handleNextImage = (e) => {
+    e.stopPropagation();
+    setActiveImageIndex((prev) => (prev === selectedProduct.images.length - 1 ? 0 : prev + 1));
+    setZoomLevel(1);
+  };
+
+  const scrollToDetailsSection = () => {
+    document.getElementById('fabric-details-anchor')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const discountAmount = selectedProduct.originalPrice - selectedProduct.price;
   const discountPercent = Math.round((1 - selectedProduct.price / selectedProduct.originalPrice) * 100);
 
+  const currentMainImage = selectedProduct.images[activeImageIndex] || selectedProduct.images[0];
+
   return (
     <div className="container">
-      <div className="product-detail-layout" style={{ marginTop: '40px' }}>
-        {/* Left Column: Image gallery */}
+      <div className="product-detail-layout" style={{ marginTop: '30px' }}>
+        {/* Left Column: Centered Image gallery */}
         <div className="product-gallery">
-          <div className="product-gallery-main">
+          <div 
+            className="product-gallery-main" 
+            onClick={() => { setShowLightbox(true); setZoomLevel(1); }}
+            title="Click to open Fullscreen HD Detail Zoom view"
+            style={{ cursor: 'zoom-in', position: 'relative' }}
+          >
             <img 
-              src={selectedProduct.images[activeImageIndex] || selectedProduct.images[0]} 
+              src={currentMainImage} 
               alt={selectedProduct.title} 
             />
+            {/* HD Zoom Badge Overlay */}
+            <div style={{
+              position: 'absolute',
+              bottom: '15px',
+              right: '15px',
+              backgroundColor: 'rgba(15, 61, 51, 0.85)',
+              color: '#D4AF37',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '0.8rem',
+              fontWeight: '600',
+              backdropFilter: 'blur(4px)',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              pointerEvents: 'none'
+            }}>
+              <span>🔍 Click for HD Detail Zoom</span>
+            </div>
           </div>
+
+          {/* Thumbnail Gallery */}
           <div className="product-gallery-thumbs">
             {selectedProduct.images.map((img, idx) => (
               <div 
@@ -76,6 +126,29 @@ export default function ProductDetail() {
               </div>
             ))}
           </div>
+
+          {/* Quick Jump to Details Link */}
+          <button 
+            onClick={scrollToDetailsSection}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border-color)',
+              color: '#0f3d33',
+              padding: '10px 16px',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginTop: '15px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'all 0.2s'
+            }}
+          >
+            <span>📜 View Fabric & Stitching Details ↓</span>
+          </button>
         </div>
 
         {/* Right Column: details */}
@@ -139,7 +212,7 @@ export default function ProductDetail() {
               <span>SELLING FAST</span>
             </div>
             <div className="stock-progress-bar">
-              <div className="stock-progress-fill" style={{ width: `${(selectedProduct.stock / 15) * 100}%` }}></div>
+              <div className="stock-progress-fill" style={{ width: `${Math.min(100, (selectedProduct.stock / 15) * 100)}%` }}></div>
             </div>
             <div style={{ marginTop: '10px', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
               <span>CLAIMED</span>
@@ -178,7 +251,7 @@ export default function ProductDetail() {
               <span className="trust-badge-icon">🚚</span>
               <div className="trust-badge-content">
                 <div className="trust-badge-title">Free Delivery on Orders Over Rs. 7,000</div>
-                <div className="trust-badge-desc">Rs. 200 delivery charge applies on orders below Rs. 7,000</div>
+                <div className="trust-badge-desc">Rs. 250 delivery charge applies on orders below Rs. 7,000</div>
               </div>
               <div className="trust-badge-action">FREE</div>
             </div>
@@ -209,15 +282,17 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Product Details (Static List) */}
-          <div className="product-details-list">
-            <h4>Details</h4>
+          {/* Product Details Section with Scroll Target Anchor */}
+          <div id="fabric-details-anchor" className="product-details-list" style={{ scrollMarginTop: '100px' }}>
+            <h4>Fabric & Stitching Details</h4>
             <ul>
               {selectedProduct.details.map((detail, idx) => (
                 <li key={idx}>{detail}</li>
               ))}
             </ul>
-            <p><strong>Disclaimer:</strong> Actual color may look slightly different from photos due to lighting and screen settings.</p>
+            <p style={{ marginTop: '12px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <strong>Disclaimer:</strong> Actual outfit color may look slightly different from photos due to lighting and screen display settings.
+            </p>
           </div>
 
           {/* FAQ accordions */}
@@ -249,6 +324,162 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* Fullscreen HD Lightbox Zoom Modal */}
+      {showLightbox && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.94)',
+            zIndex: 99999,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            animation: 'fadeIn 0.25s ease-in-out'
+          }}
+          onClick={() => setShowLightbox(false)}
+        >
+          {/* Lightbox Controls Header */}
+          <div 
+            style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              right: '20px',
+              display: 'flex',
+              justify: 'space-between',
+              alignItems: 'center',
+              zIndex: 100000
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ color: '#D4AF37', fontSize: '1rem', fontWeight: '600', letterSpacing: '0.05em' }}>
+              🔍 HD Detail Zoom View ({activeImageIndex + 1} / {selectedProduct.images.length})
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <button 
+                onClick={() => setZoomLevel((z) => Math.min(2.5, z + 0.3))}
+                style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '6px', padding: '6px 14px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold' }}
+                title="Zoom In"
+              >
+                + Zoom
+              </button>
+              <button 
+                onClick={() => setZoomLevel((z) => Math.max(1, z - 0.3))}
+                style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '6px', padding: '6px 14px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold' }}
+                title="Zoom Out"
+              >
+                − Zoom
+              </button>
+              <button 
+                onClick={() => setZoomLevel(1)}
+                style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '6px', padding: '6px 14px', cursor: 'pointer', fontSize: '0.85rem' }}
+                title="Reset Zoom"
+              >
+                Reset
+              </button>
+              <button 
+                onClick={() => setShowLightbox(false)}
+                style={{ background: '#e63946', color: 'white', border: 'none', borderRadius: '50%', width: '38px', height: '38px', cursor: 'pointer', fontSize: '1.4rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                title="Close"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+
+          {/* Previous Navigation Arrow */}
+          {selectedProduct.images.length > 1 && (
+            <button 
+              onClick={handlePrevImage}
+              style={{
+                position: 'absolute',
+                left: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '1px solid rgba(255,255,255,0.4)',
+                borderRadius: '50%',
+                width: '48px',
+                height: '48px',
+                fontSize: '1.5rem',
+                cursor: 'pointer',
+                zIndex: 100000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ‹
+            </button>
+          )}
+
+          {/* Main Zoomable Image View */}
+          <div 
+            style={{ 
+              maxHeight: '80vh', 
+              maxWidth: '90vw', 
+              overflow: 'auto', 
+              display: 'flex', 
+              justify: 'center', 
+              alignItems: 'center',
+              cursor: zoomLevel > 1 ? 'grab' : 'zoom-in'
+            }}
+            onClick={(e) => { e.stopPropagation(); setZoomLevel((z) => (z === 1 ? 1.8 : 1)); }}
+          >
+            <img 
+              src={currentMainImage} 
+              alt="High Definition Detail" 
+              style={{ 
+                maxHeight: '80vh', 
+                maxWidth: '90vw', 
+                objectFit: 'contain', 
+                transform: `scale(${zoomLevel})`, 
+                transition: 'transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                borderRadius: '8px',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+              }} 
+            />
+          </div>
+
+          {/* Next Navigation Arrow */}
+          {selectedProduct.images.length > 1 && (
+            <button 
+              onClick={handleNextImage}
+              style={{
+                position: 'absolute',
+                right: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '1px solid rgba(255,255,255,0.4)',
+                borderRadius: '50%',
+                width: '48px',
+                height: '48px',
+                fontSize: '1.5rem',
+                cursor: 'pointer',
+                zIndex: 100000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ›
+            </button>
+          )}
+
+          {/* Footer Notice */}
+          <div style={{ position: 'absolute', bottom: '20px', color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', textAlign: 'center' }}>
+            💡 Click image to toggle 1.8x zoom • Click outside or press × to close
+          </div>
+        </div>
+      )}
 
       {/* Judge.me Reviews Portal */}
       <section id="reviews-anchor" className="reviews-section" style={{ margin: '60px 0 100px' }}>
@@ -301,8 +532,8 @@ export default function ProductDetail() {
         <div className="products-grid">
           {products
             .filter(p => p._id !== selectedProduct._id)
-            .sort(() => 0.5 - Math.random()) // Randomize
-            .slice(0, 4) // Pick 4
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 4)
             .map(p => (
               <ProductCard key={p._id} product={p} />
             ))
