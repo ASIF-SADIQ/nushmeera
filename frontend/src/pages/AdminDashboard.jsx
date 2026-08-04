@@ -79,7 +79,7 @@ export default function AdminDashboard() {
   const [prodCategory, setProdCategory] = useState('3 Piece Suits');
   const [prodFabric, setProdFabric] = useState('Printed Lawn');
   const [prodStock, setProdStock] = useState('10');
-  const [prodImages, setProdImages] = useState('/images/lilac_orchid.png');
+  const [prodImages, setProdImages] = useState('');
   const [prodSizes, setProdSizes] = useState(['Small', 'Medium', 'Large']);
   const [prodDetails, setProdDetails] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);

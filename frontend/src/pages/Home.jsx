@@ -104,10 +104,10 @@ export default function Home() {
         productObj: p
       }))
     : [
-        { id: 1, title: 'Summer Lawn Edit', price: 4600, category: '3 Piece Suits', image: '/images/s2 (1).png' },
-        { id: 2, title: 'Luxury Embroidered Edit', price: 5580, category: '3 Piece Suits', image: '/images/s2 (2).png' },
-        { id: 3, title: 'Chic 2-Piece & Co-Ords', price: 3299, category: '2 Piece Sets', image: '/images/s2 (3).png' },
-        { id: 4, title: 'Dresses Under Rs. 2,999', price: 2856, category: 'Dresses under 2999', image: '/images/s2 (4).png' }
+        { id: 1, title: 'Summer Lawn Edit', price: 4600, category: '3 Piece Suits', image: '/images/s2 (1).webp' },
+        { id: 2, title: 'Luxury Embroidered Edit', price: 5580, category: '3 Piece Suits', image: '/images/s2 (2).webp' },
+        { id: 3, title: 'Chic 2-Piece & Co-Ords', price: 3299, category: '2 Piece Sets', image: '/images/s2 (3).webp' },
+        { id: 4, title: 'Dresses Under Rs. 2,999', price: 2856, category: 'Dresses under 2999', image: '/images/s2 (4).webp' }
       ];
 
   useEffect(() => {
