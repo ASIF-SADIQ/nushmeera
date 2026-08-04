@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { ProductContext } from '../context/ProductContext';
+import { getOptimizedImageUrl, getImageSrcSet } from '../utils/imageOptimizer';
 
 export default function ProductCard({ product }) {
   const { navigateTo } = useContext(ProductContext);
@@ -7,6 +8,9 @@ export default function ProductCard({ product }) {
   if (!product) return null;
 
   const discountPercent = Math.round((1 - product.price / product.originalPrice) * 100);
+  const rawImg = product.images && product.images[0] ? product.images[0] : '';
+  const highResImg = getOptimizedImageUrl(rawImg, 800);
+  const srcSetVal = getImageSrcSet(rawImg);
 
   return (
     <div className="product-card">
@@ -16,7 +20,9 @@ export default function ProductCard({ product }) {
         style={{ cursor: 'pointer' }}
       >
         <img 
-          src={product.images[0]} 
+          src={highResImg} 
+          srcSet={srcSetVal}
+          sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
           alt={product.title} 
           className="product-card-img" 
           loading="lazy"

@@ -798,6 +798,10 @@ button {
   transition: transform 0.3s ease;
   display: block;
   margin: 0 auto;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .product-gallery-main:hover img {

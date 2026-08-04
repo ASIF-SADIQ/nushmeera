@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { ProductContext } from '../context/ProductContext';
 import { CartContext } from '../context/CartContext';
 import ProductCard from '../components/ProductCard';
+import { getOptimizedImageUrl, getImageSrcSet } from '../utils/imageOptimizer';
 
 export default function ProductDetail() {
   const {
@@ -74,7 +75,9 @@ export default function ProductDetail() {
   const discountAmount = selectedProduct.originalPrice - selectedProduct.price;
   const discountPercent = Math.round((1 - selectedProduct.price / selectedProduct.originalPrice) * 100);
 
-  const currentMainImage = selectedProduct.images[activeImageIndex] || selectedProduct.images[0];
+  const rawMainImage = selectedProduct.images[activeImageIndex] || selectedProduct.images[0];
+  const currentMainImage = getOptimizedImageUrl(rawMainImage, 1200);
+  const mainImageSrcSet = getImageSrcSet(rawMainImage);
 
   return (
     <div className="container">
@@ -89,6 +92,8 @@ export default function ProductDetail() {
           >
             <img 
               src={currentMainImage} 
+              srcSet={mainImageSrcSet}
+              sizes="(max-width: 768px) 100vw, 50vw"
               alt={selectedProduct.title} 
             />
             {/* HD Zoom Badge Overlay */}
